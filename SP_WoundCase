@@ -1,0 +1,90 @@
+ALTER PROCEDURE [dbo].[WoundCase]
+AS
+UPDATE OSHA.dbo.OCE
+SET [Wound Case] = 'Event Desc'
+WHERE --claims that might need to be recordable because of a wound closing such as stitches or sutures
+[OSHA Recordable Flag] = 'N' 
+AND [OSHA Work Related] = 'Y' 
+AND [Last Note Text] NOT LIKE '%no wound clos%'
+AND [Last Note Text] NOT LIKE '%no stitch%'
+AND [Last Note Text] NOT LIKE '%stitches not%'
+AND ([Nature Description] LIKE 'Lacerat%' OR [Nature Description] LIKE 'Punctur%')
+AND (-- And contains stitches, sutures, etc in the Event Description
+    ( --Keywords to find
+      [What happened?] LIKE '%Stitch%'  
+      OR [What happened?] LIKE '%stich%' 
+      OR [What happened?] LIKE '%stitich%' 
+      OR [What happened?] LIKE '%suture%' 
+      OR [What happened?] LIKE '%dermabond%' 
+      OR [What happened?] LIKE '%glue%'
+    ) 
+    AND 
+    ( --Exclusions
+      [What happened?] NOT LIKE '%no sti%' --Stitches exclusions 
+      AND [What happened?] NOT LIKE '%not require s%' 
+      AND [What happened?] NOT LIKE '%not require any s%' 
+      AND [What happened?] NOT LIKE '%not need s%' 
+      AND [What happened?] NOT LIKE '%not need any s%' 
+	  AND [What happened?] NOT LIKE '%s not required%'
+	  AND [What happened?] NOT LIKE '%no need for s%'
+      AND [What happened?] NOT LIKE '%stitches not%' 
+      AND [What happened?] NOT LIKE '%sutures not%'
+	  AND [What happened?] NOT LIKE '%w/o suture%' 
+      AND [What happened?] NOT LIKE '%no suture%' 
+      AND [What happened?] NOT LIKE '%not suture%' 
+      AND [What happened?] NOT LIKE '%no stitch%' 
+      AND [What happened?] NOT LIKE '%not stitch%' 
+      AND [What happened?] NOT LIKE '%might need s%' 
+      AND [What happened?] NOT LIKE '%may need s%' 
+      AND [What happened?] NOT LIKE '%unglue%' 
+      AND [What happened?] NOT LIKE '%glue gun%'
+	  AND [What happened?] NOT LIKE '%hot glue%'
+      AND [What happened?] NOT LIKE '%glue stick%' 
+	  AND [What happened?] NOT LIKE '%gluestick%' 
+      AND [What happened?] NOT LIKE '%super glue%' 
+	  AND [What happened?] NOT LIKE '%superglue%' 
+    ) 
+);
+
+UPDATE OSHA.dbo.OCE
+SET [Wound Case] = 'MD Note'
+WHERE --claims that might need to be recordable because of a wound closing such as stitches or sutures
+[OSHA Recordable Flag] = 'N' 
+AND [OSHA Work Related] = 'Y' 
+AND [Last Note Text] NOT LIKE '%no wound clos%'
+AND ([Nature Description] LIKE 'Lacerat%' OR [Nature Description] LIKE 'Punctur%')
+AND (-- And contains stitches, sutures, etc in the Medical Note
+    ( --Keywords to find
+      [Medical Note] LIKE '%Stitch%' 
+      OR [Medical Note] LIKE '%stich%' 
+      OR [Medical Note] LIKE '%stitich%' 
+      OR [Medical Note] LIKE '%suture%' 
+      OR [Medical Note] LIKE '%dermabond%' 
+      OR [Medical Note] LIKE '%glue%' 
+    ) 
+    AND 
+    ( --Exclusions 
+      [Medical Note] NOT LIKE '%no stit%' 
+      AND [Medical Note] NOT LIKE '%not require s%' 
+      AND [Medical Note] NOT LIKE '%not require any s%' 
+      AND [Medical Note] NOT LIKE '%not need s%' 
+      AND [Medical Note] NOT LIKE '%not need any s%' 
+      AND [Medical Note] NOT LIKE '%stitches not%' 
+      AND [Medical Note] NOT LIKE '%sutures not%'
+	  AND [Medical Note] NOT LIKE '%w/o suture%'  
+      AND [Medical Note] NOT LIKE '%no suture%' 
+      AND [Medical Note] NOT LIKE '%no stitch%' 
+      AND [Medical Note] NOT LIKE '%not suture%' 
+      AND [Medical Note] NOT LIKE '%not stitch%' 
+	  AND [Medical Note] NOT LIKE '%declined s%' 
+      AND [Medical Note] NOT LIKE '%might need s%' 
+      AND [Medical Note] NOT LIKE '%may need s%' 
+      AND [Medical Note] NOT LIKE '%unglue%' 
+	  AND [Medical Note] NOT LIKE '%hot_glue%' 
+      AND [Medical Note] NOT LIKE '%glue gun%' 
+      AND [Medical Note] NOT LIKE '%glue stick%'
+	  AND [Medical Note] NOT LIKE '%gluestick%' 
+      AND [Medical Note] NOT LIKE '%super glue%' 
+	  AND [Medical Note] NOT LIKE '%superglue%' 
+    ) 
+  );
