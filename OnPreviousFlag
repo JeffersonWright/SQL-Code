@@ -1,0 +1,25 @@
+ALTER PROCEDURE [dbo].[OnPreviousFlag] 
+AS
+UPDATE OSHA.dbo.OCE
+SET [On Previous AQC] = 'No'
+WHERE 
+[On Previous AQC] IS NULL
+;
+UPDATE OSHA.dbo.OCE
+SET [On Previous AQC] = 'Yes'
+FROM OSHA.dbo.OnPreviousAQC
+WHERE 
+OSHA.dbo.OCE.[File Number] = OSHA.dbo.OnPreviousAQC.[File Number]
+;
+
+UPDATE OSHA.dbo.OCE
+SET [On Previous EQC] = 'No'
+WHERE 
+[On Previous EQC] IS NULL
+;
+UPDATE OSHA.dbo.OCE
+SET [On Previous EQC] = 'Yes'
+FROM OSHA.dbo.OnPreviousEQC
+WHERE 
+OSHA.dbo.OCE.[File Number] = OSHA.dbo.OnPreviousEQC.[File Number]
+;
