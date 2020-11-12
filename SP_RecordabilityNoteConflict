@@ -1,0 +1,22 @@
+ALTER PROCEDURE [dbo].[RecordabilityNoteConflict] 
+AS
+UPDATE OSHA.dbo.OCE
+SET [Recordability Note Conflict] = 'Check'
+WHERE --claims where the OSHA note conflicts with the recordability
+(
+  ( --Not recordables with a note that says recordable
+    [OSHA Recordable Flag] = 'N' 
+    AND [Last Note Text] LIKE 'Recommendation: RECORDABLE%' 
+  ) 
+  OR 
+  ( --Recordables with a note that says not recordable
+    [OSHA Recordable Flag] = 'Y' 
+    AND [Last Note Text] LIKE 'Recommendation: NOT RECORDABLE%'
+  ) 
+) 
+AND NOT ( --Exclusion for Safeway with system notes
+  [Client Number] IN ('2632','6400') 
+  AND [Note Created By] = 'SYSTEM' 
+);
+
+ 
