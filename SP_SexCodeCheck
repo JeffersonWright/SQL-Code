@@ -1,0 +1,8 @@
+ALTER PROCEDURE [dbo].[SexCode] 
+AS
+UPDATE OSHA.dbo.OCE
+SET [Sex Code Check] = 'Check'
+WHERE --recordable claim with a sex code other than M or F
+  [OSHA Recordable Flag] = 'Y'
+  AND [Client Number] NOT IN ('2032') --Kaiser not included in this check
+  AND [Sex Code] NOT IN ('M','F');
