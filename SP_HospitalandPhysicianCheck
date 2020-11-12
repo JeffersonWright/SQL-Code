@@ -1,0 +1,99 @@
+ALTER PROCEDURE [dbo].[HospitalAndPhysicianCheck]
+AS
+UPDATE OSHA.dbo.OCE
+SET [Hospital and Physician Check] = 'Check'
+WHERE --address book is blank for physician name
+[OSHA Recordable Flag] = 'Y' 
+AND [Client Number] NOT IN ('2032') --Kaiser not included in this check 
+AND NOT [Claim Type] = 'IO'
+AND ( 
+  ( 
+    [Physician Name] IS NULL 
+    AND [Hospital Name] IS NULL 
+    AND NOT( 
+        [JURIS Nature/Result Description] LIKE '%Bloodborne Pathogen%'
+        OR [JURIS Nature/Result Description] LIKE '%Loss of Consciousness%'
+        OR [JURIS Nature/Result Description] LIKE '%Hearing%'
+    )
+  )
+
+/*
+  OR 
+  ( --Lowes, AA, Transdev, Mentor Network, and United require both fields 
+    [Client Number] IN ('2807','4795','6091','6443','6925') 
+    AND ([Hospital Name] IS NULL 
+      OR [Physician Name] IS NULL 
+    ) 
+  )
+*/
+
+)
+
+AND [Client Number] IN ( --Clients that have pulled more than 10 301 logs ever
+'4192',
+'2453',
+'2073',
+'6091',
+'4701',
+'6400',
+'4795',
+'4054',
+'1978',
+'2807',
+'2576',
+'5472',
+'4818',
+'4760',
+'6795',
+'3028',
+'2030',
+'2967',
+'6362',
+'1970',
+'4633',
+'6443',
+'1936',
+'1987',
+'4186',
+'9127',
+'4263',
+'6094',
+'2662',
+'6312',
+'1953',
+'6382',
+'6839',
+'6962',
+'2253',
+'1855',
+'4021',
+'2288',
+'6292',
+'2532',
+'6095',
+'6232',
+'4648',
+'4538',
+'1964',
+'3495',
+'6808',
+'4238',
+'6164',
+'2004',
+'6017',
+'6836',
+'9122',
+'2138',
+'6299',
+'6993',
+'9043',
+'9123',
+'9203',
+'9258',
+'6925',
+'9060',
+'9113',
+'9282',
+'4436',
+'6957'
+);
