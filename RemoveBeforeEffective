@@ -1,0 +1,25 @@
+ALTER PROCEDURE [dbo].[RemoveBeforeEffective]
+UPDATE OSHA.dbo.OCE --claims that have a DoI before the client's effective date are not handled
+SET OSHA.dbo.OCE.[ClientEffective] = OSHA.dbo.OSHA_Client_List.[Date Effective] --set the analyst as the analyst on the client list table
+FROM OSHA.dbo.OSHA_Client_List
+WHERE --the client number matches the client number on the client list table
+OSHA.dbo.OCE.[Client Number] = OSHA.dbo.OSHA_Client_List.[Client #];
+
+SELECT 'Removed: DOI Before Effective Date'      AS 'Removed: DOI Before Effective Date',
+	   [client number]                           AS 'Client Number',
+       [client name]                             AS 'Client Name',
+	   [file number]                             AS 'File Number',
+	   [Analyst]                                 AS 'Current Analyst', 
+	   [occurrence date]                         AS 'Occurrence Date',
+       [employee last name]                      AS 'Employee Last Name',
+       [employee first name]                     AS 'Employee First Name',
+	   [claim open date]						 AS 'Claim Open Date'
+INTO OSHA.dbo._QC_BeforeEffective
+FROM OSHA.dbo.OCE 
+WHERE [Occurrence Date] < [ClientEffective];
+
+DELETE FROM OSHA.dbo.OCE
+WHERE [Occurrence Date] < [ClientEffective];
+
+DELETE FROM OSHA.dbo.OCE --delete ~100 claims that we don't handle: All AA claims in Ohio
+WHERE [Client Number] = 4795 AND [Location State Code] = 'OH';
