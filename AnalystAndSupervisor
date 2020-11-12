@@ -1,0 +1,59 @@
+ALTER PROCEDURE [dbo].[AnalystAndSupervisor]
+AS
+UPDATE OSHA.dbo.OCE
+SET OSHA.dbo.OCE.[Analyst] = OSHA.dbo.OSHA_Client_List.[Analyst] --set the analyst as the analyst on the client list table
+FROM OSHA.dbo.OSHA_Client_List
+WHERE --the client number matches the client number on the client list table
+OSHA.dbo.OCE.[Client Number] = OSHA.dbo.OSHA_Client_List.[Client #]
+
+UPDATE OSHA.dbo.OCE
+SET OSHA.dbo.OCE.[Secondary] = OSHA.dbo.OSHA_Client_List.[Secondary] --set secondary as the secondary analyst on the client list table 
+FROM OSHA.dbo.OSHA_Client_List
+WHERE --the client number matches the client number on the client list table
+OSHA.dbo.OCE.[Client Number] = OSHA.dbo.OSHA_Client_List.[Client #]
+
+UPDATE OSHA.dbo.OCE
+SET OSHA.dbo.OCE.[Tertiary] = OSHA.dbo.OSHA_Client_List.[Tertiary] --set tertiary as the tertiary analyst on the client list table 
+FROM OSHA.dbo.OSHA_Client_List
+WHERE --the client number matches the client number on the client list table
+OSHA.dbo.OCE.[Client Number] = OSHA.dbo.OSHA_Client_List.[Client #]
+
+UPDATE OSHA.dbo.OCE
+SET OSHA.dbo.OCE.[Note Made By] = OSHA.dbo.analysts.[Full_Name] --set the Note Made By to the analyst full name from the analyst table
+FROM OSHA.dbo.analysts
+WHERE --the note create matches the analyst login
+OSHA.dbo.OCE.[Note Created By] = OSHA.dbo.analysts.[Analyst_Login]
+
+UPDATE OSHA.dbo.OCE
+SET OSHA.dbo.OCE.[Analyst] = OSHA.dbo.OCE.[Secondary] --set the analyst to secondary
+WHERE --the note was made by the secondary analyst
+OSHA.dbo.OCE.[Note Made By] = OSHA.dbo.OCE.[Secondary]
+
+UPDATE OSHA.dbo.OCE
+SET OSHA.dbo.OCE.[Analyst] = OSHA.dbo.OCE.[Tertiary] --set the analyst to tertiary
+WHERE --the note was made by the tertiary analyst
+OSHA.dbo.OCE.[Note Made By] = OSHA.dbo.OCE.[Tertiary]
+
+UPDATE OSHA.dbo.OCE
+SET OSHA.dbo.OCE.[Analyst] = 'Theresa Hernandez'
+WHERE --Theresa Hernandez handles IO claims for Chick-fil-A, Dollar Tree, and American Airlines 
+[Claim Type] = 'IO' AND [Client Number] IN ('1970','4186','4795')
+
+UPDATE OSHA.dbo.OCE
+SET OSHA.dbo.OCE.[OSHA Team Lead] = OSHA.dbo.analysts.[Team Lead Email] --set the Team Lead based on the Analyst using the Analysts table
+FROM OSHA.dbo.analysts
+WHERE --the analyst matches the analyst on the analyst table
+OSHA.dbo.OCE.[Analyst] = OSHA.dbo.analysts.[Full_Name]
+
+UPDATE OSHA.dbo.OCE
+SET OSHA.dbo.OCE.[Analyst] = OSHA.dbo.analysts.[Email] --set the Analyst to their Email based on the Analyst using the Analysts table
+FROM OSHA.dbo.analysts
+WHERE --the analyst matches the analyst on the analyst table
+OSHA.dbo.OCE.[Analyst] = OSHA.dbo.analysts.[Full_Name]
+
+UPDATE OSHA.dbo.OCE
+SET OSHA.dbo.OCE.[SupervisorEmail] = OSHA.dbo.supervisors.[Email] --set the supervisor email to the email from the supervisor table
+FROM OSHA.dbo.supervisors
+WHERE --the supervisor login matches the supervisor table
+OSHA.dbo.OCE.[Examiner's Supervisor] = OSHA.dbo.supervisors.[Supervisor_Login]
+
