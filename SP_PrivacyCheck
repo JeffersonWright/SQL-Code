@@ -1,0 +1,67 @@
+ALTER PROCEDURE [dbo].[PrivacyChecks]
+AS
+UPDATE OSHA.dbo.OCE
+SET [Privacy] = 'Check'
+WHERE --recordable claims that might need to be privacy cases
+[OSHA Recordable Flag] = 'Y' 
+AND [Privacy Case Flag] <> 'Y' 
+AND [Last Note Text] NOT LIKE '%non_sharps%' 
+AND [Last Note Text] NOT LIKE '%not a sharps%' 
+AND [Last Note Text] NOT LIKE '%not sharps%' 
+AND (--Any one of the following fields has something that would make it a privacy case
+  [Last Note Text] LIKE 'Recommendation: RECORDABLE - exposure%' 
+  OR ( --Something happened to a private part
+    [What happened?] LIKE '%sexual%' 
+    OR [What happened?] LIKE '%penis%' 
+    OR [What happened?] LIKE '% semen %' 
+    OR [What happened?] LIKE '%man part%' 
+    OR [What happened?] LIKE '%vagina%' 
+--  OR [What happened?] LIKE '%crotch%'
+--  OR [What happened?] LIKE '%breast%' 
+--	OR [What happened?] LIKE '%testicle%' 
+  ) 
+  OR ( --Privacy keywords
+    [JURIS Body Part/Target Description] LIKE '%genital%' 
+    OR [JURIS Nature/Result Description] LIKE '%mental%' 
+    OR [JURIS Nature/Result Description] LIKE '%HIV%' 
+    OR [JURIS Nature/Result Description] LIKE '%AIDS%' 
+    OR [JURIS Nature/Result Description] LIKE '%Hepatitis%' 
+    OR [JURIS Nature/Result Description] LIKE '%Tuberculosis%'
+    OR [JURIS Nature/Result Description] LIKE '%Assault, Rape, Molestation%' 
+    OR (--Privacy in Cause Description 
+      [JURIS Cause Description] LIKE '%stress%' 
+      OR [JURIS Cause Description] LIKE 'mental%' 
+      OR [JURIS Cause Description] LIKE '%exposure to blood%'
+      OR ( --Bodily Fluid in a cut
+        ([JURIS Cause Description] LIKE '%contact with infection disease%'
+          OR [JURIS Cause Description] LIKE '%struck/injured by body fl%') 
+        AND ([Juris Nature/Result Description] LIKE '%laceration%' 
+          OR [Juris Nature/Result Description] LIKE '%puncture%') 
+      ) 
+    ) 
+  ) 
+  OR 
+  (--Privacy in Object 
+    ( --Sharps
+      [Object] LIKE '%Needle%' 
+      OR [Object] LIKE '%Lancet%' 
+      OR [Object] LIKE '%Syringe%' 
+      OR [Object] LIKE '%Scalpel%' 
+    ) 
+    AND [Last Note Text] LIKE 'Recommendation: RECORDABLE - exposure%'
+	AND [Object] NOT LIKE '%clean%' 
+    AND [Object] NOT LIKE '%cleen%' 
+    AND [Object] NOT LIKE '%cover%' 
+    AND [Object] NOT LIKE '%cap%' 
+    AND [Object] NOT LIKE '%nose pliers%' 
+    AND [Object] NOT LIKE '%pine%' 
+    AND [Object] NOT LIKE '%unused%' 
+    AND [Object] NOT LIKE '%crochet%' 
+    AND [Object] NOT LIKE '%sewing%' 
+    AND [Object] NOT LIKE '%garment%' 
+    AND [Object] NOT LIKE '%cylinder machine%' 
+    AND [Object] NOT LIKE '%uncontam%' 
+    AND [Object] NOT LIKE '%sterile%' 
+	AND [Object] NOT LIKE '%pins and%' 
+  ) 
+);
