@@ -1,0 +1,98 @@
+ALTER PROCEDURE [dbo].[JurisFieldCheck]
+AS
+UPDATE OSHA.dbo.OCE
+SET [Juris Field Check] = 'Body Part'
+WHERE --recordable claims that have an invalid entry for Body Part Target, Nature/Result, or Cause Description
+[OSHA Recordable Flag] = 'Y' 
+AND [Last Note Text] IS NOT NULL 
+AND ( --Invalid Body Part 
+    [Body Part Desc] IS NULL 
+    OR [Body Part Desc] LIKE '%unkno%' 
+    OR [Body Part Desc] LIKE '%mult%'
+    OR [Body Part Desc] LIKE '%insufficient info to identify%'
+    OR [Body Part Desc] LIKE '%invalid from intake%'
+    OR [Body Part Desc] LIKE '%insufficient data%'
+    OR [Body Part Desc] LIKE '%all other specific injuries%'
+);
+
+UPDATE OSHA.dbo.OCE
+SET [Juris Field Check] = 'Nature Description'
+WHERE --recordable claims that have an invalid entry for Body Part Target, Nature/Result, or Cause Description
+[OSHA Recordable Flag] = 'Y' 
+AND [Last Note Text] IS NOT NULL 
+AND ( --Invalid Nature 
+    [Nature Description] IS NULL 
+    OR [Nature Description] LIKE '%unclassified, insufficient data%'
+    OR [Nature Description] LIKE '%mult%'
+    OR [Nature Description] LIKE '%insufficient info to identify%'
+    OR [Nature Description] LIKE '%invalid from intake%'
+    OR [Nature Description] LIKE '%insufficient data%'
+    OR [Nature Description] LIKE '%all other specific injuries%'
+); 
+
+UPDATE OSHA.dbo.OCE
+SET [Juris Field Check] = 'Cause Description'
+WHERE --recordable claims that have an invalid entry for Body Part Target, Nature/Result, or Cause Description
+[OSHA Recordable Flag] = 'Y' 
+AND [Last Note Text] IS NOT NULL 
+AND ( --Invalid Cause 
+    [Cause Description] IS NULL 
+    OR [Cause Description] LIKE '%unclassified, insufficient data%'
+    OR [Cause Description] LIKE '%mult%'
+    OR [Cause Description] LIKE '%insufficient info to identify%'
+    OR [Cause Description] LIKE '%invalid from intake%'
+    OR [Cause Description] LIKE '%insufficient data%' 
+    OR [Cause Description] LIKE '%all other specific injuries%' 
+);
+
+UPDATE OSHA.dbo.OCE
+SET [Juris Field Check] = 'Scabies check'
+WHERE --The claim mentions scabies, which should be Cause: struck by animal/insect, and Nature: inflammation
+[OSHA Recordable Flag] = 'Y' 
+AND [Last Note Text] IS NOT NULL 
+AND [Client Number] NOT IN ('1855','2576','2252') --Ascension requests specific scabies coding, UHS and Providence don't have Cause: Struck by animal/insect
+AND ( 
+    ([Object] LIKE '%scabies%'
+		OR [What happened?] LIKE '%scabies%'
+		OR [Medical Note] LIKE '%scabies%'
+		OR [JURIS Nature/Result Description] LIKE '%scabies%'
+		OR [JURIS Cause Description] LIKE '%scabies%')
+	AND(
+		[Accident/Illness Type] <> '1' -- Should be Illness Type 1
+		OR [Cause Description] LIKE '%diseas%'
+		OR ([JURIS Cause Description] NOT LIKE '%struck by animal%'
+			AND [JURIS Cause Description] NOT LIKE 'Struck/Injured By Animal or Insect'
+			)
+		OR [JURIS Cause Description] LIKE '%diseas%'
+		OR [Nature Description] LIKE '%dermatitus%'
+		OR [Nature Description] LIKE '%diseas%'
+	)
+); 
+
+UPDATE OSHA.dbo.OCE
+SET [Juris Field Check] = 'Concussion not on brain'
+WHERE --recordable claims that have an invalid entry for Body Part Target, Nature/Result, or Cause Description
+[OSHA Recordable Flag] = 'Y' 
+AND [Last Note Text] IS NOT NULL 
+AND ( --Concussion anywhere but brain 
+    [JURIS Nature/Result Description] LIKE '%concussion%'
+    AND ([JURIS Body Part/Target Description] NOT LIKE '%brain%'
+		AND [JURIS Body Part/Target Description] NOT LIKE '%head%'
+		AND [JURIS Body Part/Target Description] NOT LIKE '%skull%') 
+);
+
+UPDATE OSHA.dbo.OCE
+SET [Juris Field Check] = 'Soft tissue fracture'
+WHERE --recordable claims that have an invalid entry for Body Part Target, Nature/Result, or Cause Description
+[OSHA Recordable Flag] = 'Y' 
+AND [Last Note Text] IS NOT NULL 
+AND ( --Can't fracture soft tissue 
+    [JURIS Nature/Result Description] LIKE '%fracture%' 
+    AND ( 
+      [JURIS Body Part/Target Description] LIKE '%facial soft tissue%'
+      OR [JURIS Body Part/Target Description] LIKE '%neck - soft tissue%'
+      OR [JURIS Body Part/Target Description] LIKE '%head - soft tissue%'
+      OR [JURIS Body Part/Target Description] LIKE '%soft tissue-neck%' 
+      OR [JURIS Body Part/Target Description] LIKE '%other facial tissue%'
+    ) 
+);
