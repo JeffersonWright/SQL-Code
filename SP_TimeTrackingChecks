@@ -1,0 +1,63 @@
+ALTER PROCEDURE [dbo].[TimeTrackingChecks] 
+AS
+UPDATE OSHA.dbo.OCE
+SET [Days Away Missing] = 'Check'
+WHERE --note indicating days away but none in time tracking, excluding "per TT" which is given back to analyst to fix
+[Last Note Text] LIKE 'Recommendation: RECORDABLE - lost time%'
+AND [Override Flag] = 'N'
+AND [Last Note Text] NOT LIKE '%per TT%'
+AND [Last Note Text] NOT LIKE '%per time_track%'	
+AND ( 
+  [Calendar Lost Time Days] IS NULL 
+  OR 
+  [Calendar Lost Time Days] = 0 
+);
+
+UPDATE OSHA.dbo.OCE
+SET [Days Restricted Missing] = 'Check'
+WHERE --note indicating days restricted but none in time tracking, excluding "per TT" which is given back to analyst to fix
+([Last Note Text] LIKE 'Recommendation: RECORDABLE - modified/restricted duty%'
+	OR [Last Note Text] Like 'Recommendation: RECORDABLE - lost time,_modified/restricted duty%'
+)
+AND [Override Flag] = 'N'
+AND [Last Note Text] NOT LIKE '%per TT%'
+AND [Last Note Text] NOT LIKE '%per time_track%'
+AND [Calendar Lost Time Days] IS NULL
+AND ( --Restricted duty is blank or 0
+  ( 
+    [Calendar Restricted Days] IS NULL 
+    AND [Calendar Restricted-NTL Days] IS NULL 
+  ) 
+  OR ( 
+    [Calendar Restricted Days] = 0 
+    AND [Calendar Restricted-NTL Days] = 0 
+  ) 
+);
+
+UPDATE OSHA.dbo.OCE
+SET [Osha Days Away Check] = 'Check'
+WHERE --recordable claim with mismatch in calendar days away and actual days away
+[OSHA Recordable Flag] = 'Y' 
+AND [Override Flag] = 'N'
+AND [Last Note Text] LIKE 'Recommendation: RECORDABLE - lost time%'
+AND [Last Note Text] NOT LIKE '%Open_Denied%' 
+AND (ISNULL([Calendar Lost Time Days],0)-ISNULL([Actual Days Away],0)) > 1 
+AND (ISNULL([Recordable Days Away],0) + ISNULL([Recordable Days Restricted],0)) < 180
+AND [current anticipated rtw date] > (SELECT MAX([Create Timestamp]) From OSHA.dbo.OCE) --When ARTW date is in the past it flags this too, but there is a separate flag for this so no need to flag both.
+AND [Benefit End Date] > GETDATE() --This is to correct for the bugged out OSHA field when benefit end date is in the past. Remove this line when report is fixed.
+;
+
+UPDATE OSHA.dbo.OCE
+SET [Osha Days Restricted Check] = 'Check'
+WHERE --recordable claim with a mismatch in calendar days restricted and actual days restricted
+[OSHA Recordable Flag] = 'Y'
+AND [Override Flag] = 'N'
+AND [Last Note Text] NOT LIKE '%Open_Denied%'
+AND ([Last Note Text] LIKE 'Recommendation: RECORDABLE - modified/restricted duty%'
+	OR [Last Note Text] Like 'Recommendation: RECORDABLE - lost time,_modified/restricted duty%'
+)
+AND (ISNULL([Calendar Restricted Days],0)+ISNULL([Calendar Restricted-NTL Days],0)-ISNULL([Actual Days Restricted],0)) > 1
+AND (ISNULL([Recordable Days Away],0) + ISNULL([Recordable Days Restricted],0)) < 180
+AND [current anticipated rtw date] > (SELECT MAX([Create Timestamp]) From OSHA.dbo.OCE) --When ARTW date is in the past it flags this too, but there is a separate flag for this so no need to flag both.
+AND [Benefit End Date] > GETDATE() --This is to correct for the bugged out OSHA field when benefit end date is in the past. Remove this line when report is fixed.
+;
