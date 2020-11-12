@@ -1,0 +1,12 @@
+ALTER PROCEDURE [dbo].[ExpiredBenefitDate] 
+AS
+UPDATE OSHA.dbo.OCE
+SET [Expired Benefit Date] = 'Check'
+WHERE --recordable claims with work status of off work or restricted and a benefit date two weeks past due or in the future
+[OSHA Recordable Flag] = 'Y' 
+AND [Work Status] IN ('Off Work','Restricted','Restricted-NTL') 
+AND ( --Checks that the benefit end date is valid
+	(SELECT max([Create Timestamp]) - 14 FROM   osha.dbo.oce) > [Benefit End Date] 
+	OR [Benefit End Date] > (SELECT max([Create Timestamp]) + 365 FROM   osha.dbo.oce)
+	OR [Benefit End Date] IS NULL
+);
