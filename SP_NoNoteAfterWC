@@ -1,0 +1,21 @@
+ALTER PROCEDURE [dbo].[NoNoteAfterDenialAcceptance]
+AS
+UPDATE OSHA.dbo.OCE
+SET [No Note After Denial/Acceptance] = 'Check Denied'
+WHERE --last note is before denial, needing to update note with denial taken into consideration
+[OSHA Recordable Flag] = 'Y'
+AND [Claim Substatus] = 'D'
+AND [Last Note Text] NOT LIKE '%denied%'
+AND [Last Note Text] NOT LIKE '%denial%'
+AND [Denial Status Date] > [Note Created Date]
+AND [Denied Reason Code] NOT IN ('1B','1D','2A','2E','3A','3D','3E','3F','3G','4A','4B','5A','5B','6A','6B','6C','6D','6E','6F')
+;
+UPDATE OSHA.dbo.OCE
+SET [No Note After Denial/Acceptance] = 'Check Acceptance'
+WHERE --last note is before acceptance, needing to update note with acceptance taken into consideration
+[OSHA Work Related] = 'N'
+AND [Claim Substatus] = 'A'
+AND [Client Number] <> 6925 --United not included because they accept non WR claims often
+AND ([Accepted Status Date]>[Note Created Date])
+AND [Last Note Text] LIKE 'Recommendation: NOT RECORDABLE - no indication of a work-related%'
+;
