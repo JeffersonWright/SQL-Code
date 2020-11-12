@@ -1,0 +1,102 @@
+ALTER PROCEDURE [dbo].[AddRuleColumns]
+AS
+IF COL_LENGTH('OSHA.dbo.OCE','Active') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [Active] varchar(40);
+IF COL_LENGTH('OSHA.dbo.OCE','ClientEffective') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [ClientEffective] varchar(40);
+IF COL_LENGTH('OSHA.dbo.OCE','AutoIO') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [AutoIO] varchar(40);
+IF COL_LENGTH('OSHA.dbo.OCE','Analyst') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [Analyst] varchar(70);
+IF COL_LENGTH('OSHA.dbo.OCE','Secondary') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [Secondary] varchar(70);
+IF COL_LENGTH('OSHA.dbo.OCE','Tertiary') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [Tertiary] varchar(70);
+IF COL_LENGTH('OSHA.dbo.OCE','OSHA Team Lead') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [OSHA Team Lead] varchar(70);
+IF COL_LENGTH('OSHA.dbo.OCE','Note Made By') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [Note Made By] varchar(70);
+IF COL_LENGTH('OSHA.dbo.OCE','SupervisorEmail') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [SupervisorEmail] varchar(70);
+IF COL_LENGTH('OSHA.dbo.OCE','QCPreventable') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [QCPreventable] varchar(40);
+IF COL_LENGTH('OSHA.dbo.OCE','On Previous AQC') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [On Previous AQC] varchar(10);
+IF COL_LENGTH('OSHA.dbo.OCE','On Previous EQC') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [On Previous EQC] varchar(10);
+IF COL_LENGTH('OSHA.dbo.OCE','Recordability Note Conflict') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [Recordability Note Conflict] varchar(10);
+IF COL_LENGTH('OSHA.dbo.OCE','Work Related Note Conflict') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [Work Related Note Conflict] varchar(10);
+IF COL_LENGTH('OSHA.dbo.OCE','Previous IOs') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [Previous IOs] varchar(10);
+IF COL_LENGTH('OSHA.dbo.OCE','MD and PR Note Check') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [MD and PR Note Check] varchar(11);
+IF COL_LENGTH('OSHA.dbo.OCE','Date of Death Check') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [Date of Death Check] varchar(10);
+IF COL_LENGTH('OSHA.dbo.OCE','Significant Injury') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [Significant Injury] varchar(10);
+IF COL_LENGTH('OSHA.dbo.OCE','Loss of Consciousness') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [Loss of Consciousness] varchar(35);
+IF COL_LENGTH('OSHA.dbo.OCE','Wound Case') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [Wound Case] varchar(10);
+IF COL_LENGTH('OSHA.dbo.OCE','No Note After Denial/Acceptance') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [No Note After Denial/Acceptance] varchar(20);
+IF COL_LENGTH('OSHA.dbo.OCE','TT Note') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [TT Note] varchar(10);
+IF COL_LENGTH('OSHA.dbo.OCE','Privacy') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [Privacy] varchar(10);
+IF COL_LENGTH('OSHA.dbo.OCE','OSHA Detail Check') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [OSHA Detail Check] varchar(35);
+IF COL_LENGTH('OSHA.dbo.OCE','Illness Code Check') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [Illness Code Check] varchar(10);
+IF COL_LENGTH('OSHA.dbo.OCE','Body Side Check') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [Body Side Check] varchar(10);
+IF COL_LENGTH('OSHA.dbo.OCE','Juris Field Check') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [Juris Field Check] varchar(35);
+IF COL_LENGTH('OSHA.dbo.OCE','Analyst Note Check') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [Analyst Note Check] varchar(10);
+IF COL_LENGTH('OSHA.dbo.OCE','Note Template Check') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [Note Template Check] varchar(10);
+IF COL_LENGTH('OSHA.dbo.OCE','Blank Occupation') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [Blank Occupation] varchar(10);
+IF COL_LENGTH('OSHA.dbo.OCE','Days Away Missing') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [Days Away Missing] varchar(10);
+IF COL_LENGTH('OSHA.dbo.OCE','Days Restricted Missing') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [Days Restricted Missing] varchar(10);
+IF COL_LENGTH('OSHA.dbo.OCE','Expired Benefit Date') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [Expired Benefit Date] varchar(10);
+IF COL_LENGTH('OSHA.dbo.OCE','Osha Days Away Check') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [Osha Days Away Check] varchar(10);
+IF COL_LENGTH('OSHA.dbo.OCE','Osha Days Restricted Check') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [Osha Days Restricted Check] varchar(10);
+IF COL_LENGTH('OSHA.dbo.OCE','Hospital and Physician Check') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [Hospital and Physician Check] varchar(10);
+IF COL_LENGTH('OSHA.dbo.OCE','Work Time Begin Check') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [Work Time Begin Check] varchar(10);
+IF COL_LENGTH('OSHA.dbo.OCE','Event Time Check') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [Event Time Check] varchar(10);
+IF COL_LENGTH('OSHA.dbo.OCE','Event Time vs Work Begin') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [Event Time vs Work Begin] varchar(10);
+IF COL_LENGTH('OSHA.dbo.OCE','Sex Code Check') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [Sex Code Check] varchar(10);
+IF COL_LENGTH('OSHA.dbo.OCE','Hire Date Check') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [Hire Date Check] varchar(20);
+IF COL_LENGTH('OSHA.dbo.OCE','ARTW Check') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [ARTW Check] varchar(20);
+IF COL_LENGTH('OSHA.dbo.OCE','DoB Check') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [DoB Check] varchar(20);
+IF COL_LENGTH('OSHA.dbo.OCE','CovidIO') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [CovidIO] varchar(10);
+IF COL_LENGTH('OSHA.dbo.OCE','Check Restricted') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [Check Restricted] varchar(10);
+IF COL_LENGTH('OSHA.dbo.OCE','Check significant injury') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [Check significant injury] varchar(10);
+IF COL_LENGTH('OSHA.dbo.OCE','Check needle') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [Check needle] varchar(10);
+IF COL_LENGTH('OSHA.dbo.OCE','Check wound case') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [Check wound case] varchar(10);
+IF COL_LENGTH('OSHA.dbo.OCE','Check MD Note') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [Check MD Note] varchar(10);
+IF COL_LENGTH('OSHA.dbo.OCE','BP Status') IS NULL
+	ALTER TABLE OSHA.dbo.OCE ADD [BP Status] varchar(50);
