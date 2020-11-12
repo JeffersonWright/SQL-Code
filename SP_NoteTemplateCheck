@@ -1,0 +1,30 @@
+ALTER PROCEDURE [dbo].[NoteTemplateCheck]
+AS
+UPDATE OSHA.dbo.OCE
+SET [Note Template Check] = 'Check'
+WHERE --note is not a template, which begins with Recommendation or Pending
+[Last Note Text] IS NOT NULL
+AND [Client Number] NOT IN ('1954','1955','1969','1978','1987','2036','2044','2250','2285','2326','2473','2635','2905','6143','6163','6384','6396','6858','6907','6921','8523') --Excluding clients handled by examiners 
+AND [Last Note Text] NOT LIKE 'Pending further investigation to determine OSHA%' 
+AND [Last Note Text] NOT LIKE 'Recommendation: RECORDABLE - Work Related TB Diagnosis%' --OS1
+AND [Last Note Text] NOT LIKE 'Recommendation: RECORDABLE - exposure to BBP (Blood Borne Pathogen)%' --O2
+AND [Last Note Text] NOT LIKE 'Recommendation: RECORDABLE - Chiropractic Treatment/ Physical Therapy/ Occupational Therapy%' --O3
+AND [Last Note Text] NOT LIKE 'Recommendation: RECORDABLE - death%' --O4
+AND [Last Note Text] NOT LIKE 'Recommendation: RECORDABLE - hearing loss%' --O5
+AND [Last Note Text] NOT LIKE 'Recommendation: RECORDABLE - loss of consciousness%' --O6
+AND [Last Note Text] NOT LIKE 'Recommendation: RECORDABLE - lost time%' --O7
+AND [Last Note Text] NOT LIKE 'Recommendation: RECORDABLE - modified/restricted duty%' --O9
+AND [Last Note Text] NOT LIKE 'Recommendation: RECORDABLE - medical treatment beyond first aid%' --O10
+AND [Last Note Text] NOT LIKE 'Recommendation: RECORDABLE - rigid support/splint/cast/crutches%' --O11
+AND [Last Note Text] NOT LIKE 'Recommendation: RECORDABLE - prescription-strength medication%' --O12
+AND [Last Note Text] NOT LIKE 'Recommendation: RECORDABLE - significant injury/illness%' --O13
+AND [Last Note Text] NOT LIKE 'Recommendation: RECORDABLE - sutures/staples/surgical glue%' --O14
+AND [Last Note Text] NOT LIKE 'Recommendation: NOT RECORDABLE - claim is closed - no%' --O15		 indication of treatment beyond first aid, no documents, payments or file notes to review
+AND [Last Note Text] NOT LIKE 'Recommendation: NOT RECORDABLE - claim remains incident only%' --O16		 - no indication of treatment beyond first aid, no documents, payments or file notes to review
+AND [Last Note Text] NOT LIKE 'Recommendation: NOT RECORDABLE - no recordability%' --O17	criteria met
+AND [Last Note Text] NOT LIKE 'Recommendation: NOT RECORDABLE - not OSHA work%' --O18	-related, see exceptions
+AND [Last Note Text] NOT LIKE 'Recommendation: NOT RECORDABLE - no indication of a work%' --O19,20  -related industrial illness/injury
+AND [Last Note Text] NOT LIKE 'Recommendation: RECORDABLE – Work Related TB Diagnosis%' --
+AND [Last Note Text] NOT LIKE '%client request%'
+AND [Note Created By] NOT IN ('System','Appserv')
+; 
