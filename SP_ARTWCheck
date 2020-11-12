@@ -1,0 +1,5 @@
+UPDATE OSHA.dbo.OCE
+SET [ARTW Check] = 'Check'
+WHERE --ARTW is in the past
+[current anticipated rtw date] < (SELECT MAX([Create Timestamp]) From OSHA.dbo.OCE)
+;
