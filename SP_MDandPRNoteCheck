@@ -1,0 +1,114 @@
+ALTER PROCEDURE [dbo].[MDandPRNoteCheck] 
+AS
+UPDATE OSHA.dbo.OCE
+SET [MD and PR Note Check] = 'New PR Note'
+WHERE --recordable claims that have an MD or PR note after the latest OSHA note except with some keywords that would indicate we don't need to consider it
+[OSHA Recordable Flag] = 'N'
+AND [OSHA Work Related] = 'Y'
+AND [occurrence date] > '12/31/2018'
+AND	( --MCPR note after OS note excluding common non-issue notes
+		[Date MC Progress Report Note Created] > [Note Created Date]
+		AND [Managed Care Progress Report Note] IS NOT NULL
+		AND [Managed Care Progress Report Note] NOT LIKE 'pending%'
+		AND [Managed Care Progress Report Note] NOT LIKE 'N/A%'
+		AND [Managed Care Progress Report Note] NOT LIKE 'none%'
+		AND [Managed Care Progress Report Note] NOT LIKE 'no md%'
+		AND [Managed Care Progress Report Note] NOT LIKE 'no med%'
+		AND [Managed Care Progress Report Note] NOT LIKE 'IO%'
+		AND [Managed Care Progress Report Note] NOT LIKE 'unk%'
+		AND [Managed Care Progress Report Note] NOT LIKE 'no known%'
+		AND [Managed Care Progress Report Note] NOT LIKE 'not sure%'
+		AND [Managed Care Progress Report Note] NOT LIKE '%no treatment%'
+		AND [Managed Care Progress Report Note] NOT LIKE '%no tx%'
+		AND [Managed Care Progress Report Note] NOT LIKE '%not sought%'
+		AND [Managed Care Progress Report Note] NOT LIKE '%no medical%'
+		AND [Managed Care Progress Report Note] NOT LIKE '%did not seek%'
+		AND [Managed Care Progress Report Note] NOT LIKE '%no provider%'
+		AND [Managed Care Progress Report Note] NOT LIKE '%incident only%'
+		AND [Managed Care Progress Report Note] NOT LIKE '%medical status unk%'
+		AND [Managed Care Progress Report Note] NOT LIKE '%treatment unk%'
+		AND [Managed Care Progress Report Note] NOT LIKE '%tx unk%'
+		AND [Managed Care Progress Report Note] NOT LIKE '%no med trea%'
+		AND [Managed Care Progress Report Note] NOT LIKE '%has not sought%'
+		AND [Managed Care Progress Report Note] NOT LIKE '%has not been seen%'
+		AND [Managed Care Progress Report Note] NOT LIKE '%voice m%'
+		AND [Managed Care Progress Report Note] NOT LIKE '%vm%'
+	);
+
+UPDATE OSHA.dbo.OCE
+SET [MD and PR Note Check] = 'New MD Note'
+WHERE --recordable claims that have an MD or PR note after the latest OSHA note except with some keywords that would indicate we don't need to consider it
+[OSHA Recordable Flag] = 'N'
+AND [OSHA Work Related] = 'Y'
+AND [occurrence date] > '12/31/2018'
+AND	( --Medical note after OS note excluding common non-issue notes
+		[Date Medical Note Created] > [Note Created Date]
+		AND LEN([Medical Note]) > 40
+		AND	[Medical Note] IS NOT NULL
+		AND [Medical Note] NOT LIKE 'na'
+		AND [Medical Note] NOT LIKE 'pending%'
+		AND [Medical Note] NOT LIKE 'N/A%'
+		AND [Medical Note] NOT LIKE 'none%'
+		AND [Medical Note] NOT LIKE 'no md%'
+		AND [Medical Note] NOT LIKE 'no med%'
+		AND [Medical Note] NOT LIKE 'IO%'
+		AND [Medical Note] NOT LIKE 'unk%'
+		AND [Medical Note] NOT LIKE 'no known%'
+		AND [Medical Note] NOT LIKE 'not sure%'
+		AND [Medical Note] NOT LIKE '%unknown%'
+		AND [Medical Note] NOT LIKE '%selfcare%'
+		AND [Medical Note] NOT LIKE '%self_care%'
+		AND [Medical Note] NOT LIKE '%no_treatment%'
+		AND [Medical Note] NOT LIKE '%no_record%'
+		AND [Medical Note] NOT LIKE '%no_tx%'
+		AND [Medical Note] NOT LIKE '%not sought%'
+		AND [Medical Note] NOT LIKE '%no medical%'
+		AND [Medical Note] NOT LIKE '%did not seek%'
+		AND [Medical Note] NOT LIKE '%no provider%'
+		AND [Medical Note] NOT LIKE '%incident only%'
+		AND [Medical Note] NOT LIKE '%medical status unk%'
+		AND [Medical Note] NOT LIKE '%treatment unk%'
+		AND [Medical Note] NOT LIKE '%tx unk%'
+		AND [Medical Note] NOT LIKE '%no med trea%'
+		AND [Medical Note] NOT LIKE '%no treatment%'
+		AND [Medical Note] NOT LIKE '%has not sought%'
+		AND [Medical Note] NOT LIKE '%has not been seen%'
+		AND [Medical Note] NOT LIKE '%declination%'
+		AND [medical note] NOT LIKE '%No treatment%'
+		AND [medical note] NOT LIKE '%No tx%'
+		AND [medical note] NOT LIKE '%No med%'
+		AND [medical note] NOT LIKE '%First_aid only%'
+		AND [medical note] NOT LIKE '%Declined med%'
+		AND [medical note] NOT LIKE '%claim will remain an IO%'
+		AND [medical note] NOT LIKE '%No physical injury%'
+		AND [medical note] NOT LIKE '%No info%'
+		AND [medical note] NOT LIKE '%No claim%'
+		AND [medical note] NOT LIKE '%voice m%'
+		AND [medical note] NOT LIKE '%vm%'
+		AND [medical note] NOT LIKE '%medcor%'
+		AND [medical note] NOT LIKE '%no_show%'
+		AND [medical note] NOT LIKE '%no__show%'
+		AND [medical note] NOT LIKE '%mailed%'
+		AND NOT ([medical note] LIKE '%received%'
+			AND LEN([medical note])<1000)
+		AND NOT ([medical note] LIKE '%request%'
+			AND LEN([medical note])<1000)
+);
+
+UPDATE OSHA.dbo.OCE
+SET [MD and PR Note Check] = 'Priority'
+WHERE --recordable claims that have an MD or PR note after the latest OSHA note except with some keywords that would indicate we don't need to consider it
+[OSHA Recordable Flag] = 'N'
+AND [OSHA Work Related] = 'Y'
+AND [occurrence date] > '12/31/2018'
+AND [Date Medical Note Created] > [Note Created Date]
+AND	([medical note] LIKE '%chiro%'
+	OR ([medical note] LIKE '%Restrictions%'
+		AND [medical note] NOT LIKE '%without restrictions%'
+		AND [medical note] NOT LIKE '%No restrictions%'
+		AND [medical note] NOT LIKE '%Restrictions:_n%'
+		AND [medical note] NOT LIKE '%Return to full work%'
+		AND [medical note] NOT LIKE '%Activity Status and Restrictions%'
+		AND [medical note] NOT LIKE '%Released from care%'
+		AND [medical note] NOT LIKE '%Restrictions__no%'
+		AND [medical note] NOT LIKE '%Restrictions: full duty%'
