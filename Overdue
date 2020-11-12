@@ -1,0 +1,76 @@
+ALTER PROCEDURE [dbo].[Overdue]
+AS
+UPDATE OSHA.dbo.OCE
+SET [BP Status] = 'Blank > 7 Days'
+WHERE --no note over 7 days
+[last note text] IS NULL
+AND [Active] = 'Yes'
+AND (
+		([Create Timestamp] < (SELECT MAX([Create Timestamp])-8 From OSHA.dbo.OCE)
+			AND [AutoIO] = 'No'
+			AND [Client Number] NOT IN (1911,4538) --Office Depot and Petco
+		)
+	OR
+		([Claim Open Date] < (SELECT MAX([Create Timestamp])-8 From OSHA.dbo.OCE)
+			AND ([AutoIO] = 'Yes' OR [Client Number] IN (1911,4538)) --Office Depot and Petco
+			AND [Claim Type] <> 'IO'
+		)--use claim open date for auto IO clients
+);
+
+UPDATE OSHA.dbo.OCE
+SET [BP Status] = 'Pending Not Updated > 37 Days'
+WHERE --pending note on claim created more than 37 days ago
+[last note text] LIKE 'Pending%'
+AND [Active] = 'Yes'
+AND (
+		([Note Created Date] < (SELECT MAX([Create Timestamp])-37 From OSHA.dbo.OCE)
+			AND [AutoIO] = 'No' AND [Client Number] NOT IN (1911,4538) --Office Depot and Petco
+		)
+	OR
+		([Note Created Date] < (SELECT MAX([Claim Open Date])-37 From OSHA.dbo.OCE)
+			AND ([AutoIO] = 'Yes' OR [Client Number] NOT IN (1911,4538)) --Office Depot and Petco
+		)--use claim open date for auto IO clients
+);
+
+UPDATE OSHA.dbo.OCE
+SET [BP Status] = 'Pending > 60 Days'
+WHERE --pending note on claim created more than 37 days ago
+[last note text] LIKE 'Pending%'
+AND [Active] = 'Yes'
+AND (
+		([Create Timestamp] < (SELECT MAX([Create Timestamp])-60 From OSHA.dbo.OCE)
+			AND [AutoIO] = 'No' AND [Client Number] NOT IN (1911,4538) --Office Depot and Petco
+		)
+	OR
+		([Create Timestamp] < (SELECT MAX([Claim Open Date])-60 From OSHA.dbo.OCE)
+			AND ([AutoIO] = 'Yes' OR [Client Number] NOT IN (1911,4538)) --Office Depot and Petco
+		)--use claim open date for auto IO clients
+);
+
+UPDATE OSHA.dbo.OCE
+SET [BP Status] = 'Auto Recorded'
+WHERE --Auto Recorded note
+[Create Timestamp] < (SELECT MAX([Create Timestamp])-14 From OSHA.dbo.OCE)
+AND (DATEDIFF(day, [Create Timestamp], [Note Created Date]) < 15)
+AND (
+	[last note text] LIKE 'Recommendation: RECORDABLE - significant injury/illness, auto recorded as per change in Nature/Result'
+	OR [last note text] LIKE 'Recommendation: RECORDABLE - medical treatment beyond first aid, auto recorded as per pay history. Payment Issue Date%'
+)
+;
+
+UPDATE OSHA.dbo.OCE
+SET [BP Status] = 'Auto IO > 21 Days'
+WHERE --no note on IO claim for IO client created more than 21 days ago
+[AutoIO] = 'Yes'
+AND [Claim Type] = 'IO'
+AND [last note text] IS NULL
+AND [Client Number] <> '4538' --Petco excluded
+AND [Create Timestamp] < (SELECT MAX([Create Timestamp])-23 From OSHA.dbo.OCE)
+;
+
+UPDATE OSHA.dbo.OCE
+SET [BP Status] = 'Blank and No Create Date'
+WHERE --blank note and not even a create timestamp
+[last note text] IS NULL
+AND [Create Timestamp] IS NULL
+;
