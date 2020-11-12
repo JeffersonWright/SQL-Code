@@ -1,0 +1,184 @@
+ALTER PROCEDURE [dbo].[SignificantInjury]
+AS
+UPDATE OSHA.dbo.OCE
+SET [Loss of Consciousness] = 'Medical Note'
+WHERE -- Medical note indicates possible LoC
+[OSHA Recordable Flag] = 'N' 
+AND [OSHA Work Related] = 'Y' 
+AND [Last Note Text] NOT LIKE '%no LoC%'
+AND [Last Note Text] NOT LIKE '%no loss of c%'
+AND [Last Note Text] NOT LIKE '%Pax fainted%'
+AND [Last Note Text] NOT LIKE '%coworker passed%'
+AND
+    ( --Medical Note contains a keyword
+      ( --Syncope Check
+        [Medical Note] LIKE '%Syncope%'
+        AND [Medical Note] NOT LIKE '%No Syncope%' 
+        AND [Medical Note] NOT LIKE '%Denies Syncope%' 
+        AND [Medical Note] NOT LIKE '%Near Syncope%' 
+      ) 
+      OR 
+      ( --Fainted Check 
+        [Medical Note] LIKE '%Fainted%' 
+        AND [Medical Note] NOT LIKE '%Patient Fainted%' 
+        AND [Medical Note] NOT LIKE '%Customer Fainted%' 
+        AND [Medical Note] NOT LIKE '%that had Fainted%' 
+        AND [Medical Note] NOT LIKE '%Almost Fainted%' 
+		AND [Medical Note] NOT LIKE '%didn_t Faint%' 
+      ) 
+      OR 
+      ( --Passed out Check 
+        [Medical Note] LIKE '%Passed out%' 
+        AND [Medical Note] NOT LIKE '%could have passed out%' 
+        AND [Medical Note] NOT LIKE '%that had passed out%' 
+        AND [Medical Note] NOT LIKE '%Almost passed out%' 
+		AND [Medical Note] NOT LIKE '%Patient passed out%' 
+        AND [Medical Note] NOT LIKE '%Customer passed out%' 
+        AND [Medical Note] NOT LIKE '%Almost passed out%' 
+		AND [Medical Note] NOT LIKE '%didn_t pass out%' 
+      ) 
+      OR 
+      ( --blacked out Check 
+        [Medical Note] LIKE '%blacked out%' 
+        AND [Medical Note] NOT LIKE '%could have blacked out%'
+        AND [Medical Note] NOT LIKE '%that had blacked out%' 
+        AND [Medical Note] NOT LIKE '%Almost blacked out%' 
+      ) 
+      OR 
+      ( --loss of consciousness Check 
+        [Medical Note] LIKE '%consciousness%' 
+		AND [Medical Note] NOT LIKE '%t lose con%' 
+        AND [Medical Note] NOT LIKE '%without loss of con%' 
+        AND [Medical Note] NOT LIKE '%denies loss of con%' 
+        AND [Medical Note] NOT LIKE '%no loss of con%' 
+        AND [Medical Note] NOT LIKE '%w/o loss of con%' 
+        AND [Medical Note] NOT LIKE '%_t lose con%' 
+        AND [Medical Note] NOT LIKE '%denies any lo%'
+		AND [Medical Note] NOT LIKE '%denies lo%'
+      ) 
+      OR 
+      ( --unconscious Check
+        [Medical Note] LIKE '%uncons%' 
+      ) 
+    );
+
+UPDATE OSHA.dbo.OCE
+SET [Loss of Consciousness] = 'Event Description'
+WHERE -- Event Description indicates possible LoC
+[OSHA Recordable Flag] = 'N' 
+AND [OSHA Work Related] = 'Y' 
+AND [Last Note Text] NOT LIKE '%no LoC%'
+AND [Last Note Text] NOT LIKE '%no loss of c%'
+AND [Last Note Text] NOT LIKE '%Pax fainted%'
+AND [Last Note Text] NOT LIKE '%coworker passed%'
+AND 
+    ( --What happened field keyword
+      ( --Syncope Check 
+        [What happened?] LIKE '%Syncope%' 
+        AND [What happened?] NOT LIKE '%Near Syncope%' 
+        AND [What happened?] NOT LIKE '%No Syncope%' 
+        AND [What happened?] NOT LIKE '%Denies Syncope%' 
+      ) 
+      OR 
+      ( --Faint Check 
+        [What happened?] LIKE '%Fainted%' 
+        AND [What happened?] NOT LIKE '%Patient Fainted%' 
+        AND [What happened?] NOT LIKE '%Customer Fainted%' 
+        AND [What happened?] NOT LIKE '%that had Fainted%' 
+        AND [What happened?] NOT LIKE '%Almost Fainted%' 
+		AND [What happened?] NOT LIKE '%passenger fainted%' 
+		AND [What happened?] NOT LIKE '%didn_t faint%' 
+      ) 
+      OR 
+      ( --Passed out Check 
+        [What happened?] LIKE '%Passed out%' 
+        AND [What happened?] NOT LIKE '%could have passed out%'
+        AND [What happened?] NOT LIKE '%that had passed out%' 
+        AND [What happened?] NOT LIKE '%Almost passed out%' 
+		AND [What happened?] NOT LIKE '%Patient passed out%'
+		AND [What happened?] NOT LIKE '%Customer passed out%'
+		AND [What happened?] NOT LIKE '%passenger passed out%'
+      ) 
+      OR 
+      ( --blacked out Check 
+        [What happened?] LIKE '%blacked out%' 
+        AND [What happened?] NOT LIKE '%could have blacked out%'
+        AND [What happened?] NOT LIKE '%that had blacked out%'
+        AND [What happened?] NOT LIKE '%Almost blacked out%' 
+		AND [What happened?] NOT LIKE '%Patient blacked out%'
+		AND [What happened?] NOT LIKE '%Customer blacked out%'
+		AND [What happened?] NOT LIKE '%passenger blacked out%'
+      ) 
+      OR 
+      ( --loss of consciousness Check 
+        [What happened?] LIKE '%consciousness%' 
+        AND [What happened?] NOT LIKE '%without loss of con%' 
+        AND [What happened?] NOT LIKE '%denies loss of con%' 
+        AND [What happened?] NOT LIKE '%no loss of con%' 
+        AND [What happened?] NOT LIKE '%w/o loss of con%' 
+        AND [What happened?] NOT LIKE '%not lose con%' 
+        AND [What happened?] NOT LIKE '%denies any loss of con%'
+		AND [What happened?] NOT LIKE '%patient lost con%'
+		AND [What happened?] NOT LIKE '%customer lost con%'
+		AND [What happened?] NOT LIKE '%passenger lost con%'
+      ) 
+      OR 
+      ( --unconscious Check 
+        [What happened?] LIKE '%uncons%' 
+      ) 
+    );
+
+UPDATE OSHA.dbo.OCE
+SET [Loss of Consciousness] = 'JURIS Nature Description'
+WHERE -- Nature/Result indicates possible LoC
+[OSHA Recordable Flag] = 'N' 
+AND [OSHA Work Related] = 'Y' 
+AND [Last Note Text] NOT LIKE '%no LoC%'
+AND [Last Note Text] NOT LIKE '%no loss of c%'
+AND [Last Note Text] NOT LIKE '%Pax fainted%'
+AND [Last Note Text] NOT LIKE '%coworker passed%'
+AND 
+    ( ----JURIS Nature/Result Description contains a keyword
+      ( --Syncope Check 
+        [JURIS Nature/Result Description] LIKE '%Syncope%' 
+        AND [JURIS Nature/Result Description] NOT LIKE '%No Syncope%'
+        AND [JURIS Nature/Result Description] NOT LIKE '%Denies Syncope%'
+        AND [JURIS Nature/Result Description] NOT LIKE '%Near Syncope%'
+      ) 
+      OR 
+      ( --Fainted Check 
+        [JURIS Nature/Result Description] LIKE '%Fainted%' 
+        AND [JURIS Nature/Result Description] NOT LIKE '%Patient fainted%'
+        AND [JURIS Nature/Result Description] NOT LIKE '%Customer fainted%'
+        AND [JURIS Nature/Result Description] NOT LIKE '%that had fainted%'
+        AND [JURIS Nature/Result Description] NOT LIKE '%Almost Fainted%'
+      ) 
+      OR 
+      ( --Passed out Check 
+        [JURIS Nature/Result Description] LIKE '%Passed out%' 
+        AND [JURIS Nature/Result Description] NOT LIKE '%Almost passed out%'
+        AND [JURIS Nature/Result Description] NOT LIKE '%that had passed out%'
+        AND [JURIS Nature/Result Description] NOT LIKE '%could have passed out%'
+      ) 
+      OR 
+      ( --blacked out Check 
+        [JURIS Nature/Result Description] LIKE '%blacked out%' 
+        AND [JURIS Nature/Result Description] NOT LIKE '%could have blackeded out%'
+        AND [JURIS Nature/Result Description] NOT LIKE '%that had blacked out%'
+        AND [JURIS Nature/Result Description] NOT LIKE '%Almost blacked out%'
+      ) 
+      OR 
+      ( --loss of consciousness Check 
+        [JURIS Nature/Result Description] LIKE '%consciousness%' 
+        AND [JURIS Nature/Result Description] NOT LIKE '%without loss of con%'
+        AND [JURIS Nature/Result Description] NOT LIKE '%denies loss of con%'
+        AND [JURIS Nature/Result Description] NOT LIKE '%no loss of con%'
+        AND [JURIS Nature/Result Description] NOT LIKE '%w/o loss of con%'
+        AND [JURIS Nature/Result Description] NOT LIKE '%not lose con%'
+        AND [JURIS Nature/Result Description] NOT LIKE '%denies any loss of con%'
+      ) 
+      OR 
+      ( --unconscious Check 
+        [JURIS Nature/Result Description] LIKE '%uncons%' 
+      ) 
+    );
