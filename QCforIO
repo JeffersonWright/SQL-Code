@@ -1,0 +1,164 @@
+ALTER PROCEDURE [dbo].[QCforIO]
+AS
+UPDATE OSHA.dbo.OCE
+SET [Check significant injury] = 'Covid'
+WHERE --IO claim with Covid and Pandemic
+[AutoIO] = 'Yes'
+AND [Claim Type] = 'IO'
+AND ([Cause Description] LIKE '%Pandemic%'
+	OR [Nature Description] LIKE '%Covid%' 
+	OR [Object] LIKE '%Covid%'
+)
+;
+UPDATE OSHA.dbo.OCE
+SET [Check Restricted] = 'Check'
+WHERE --IO claim with any time tracking
+[AutoIO] = 'Yes'
+AND [Claim Type] = 'IO'
+AND ([actual days restricted] >0 
+	OR [recordable days restricted] >0 
+	OR [calendar restricted days] >0 
+	OR [calendar restricted-ntl days] >0 
+);
+UPDATE OSHA.dbo.OCE
+SET [Check significant injury] = 'Check'
+WHERE --IO claim mentions a significant injury keyword
+[AutoIO] = 'Yes'
+AND [Claim Type] = 'IO'
+AND (
+  [JURIS Nature/Result Description] LIKE '%broken tooth%' 
+  OR [JURIS Body Part/Target Description] LIKE '%teeth%' 
+  OR [JURIS Nature/Result Description] LIKE '%hearing%'
+  OR [JURIS Nature/Result Description] LIKE '%cancer%' 
+  OR [JURIS Nature/Result Description] LIKE '%fracture%' 
+  OR [JURIS Nature/Result Description] LIKE '%tuberculosis%'
+  OR [JURIS Nature/Result Description] LIKE '%Contagious disease%' 
+  OR [JURIS Nature/Result Description] LIKE '%Mental Stress%' 
+);
+UPDATE OSHA.dbo.OCE
+SET [Check needle] = 'Check'
+WHERE --IO claim mentions a sharps keyword in object or event description
+[AutoIO] = 'Yes'
+AND [Claim Type] = 'IO'
+AND [Client Number] NOT IN ('6981') --Macy's, 
+	AND (
+			([Object] LIKE '%Needle%' 
+			  OR [Object] LIKE '%Lancet%' 
+			  OR [Object] LIKE '%Syringe%' 
+			  OR [Object] LIKE '%Scalpel%' 
+			  OR [Object] LIKE '%Razor%' 
+			  OR [Object] LIKE '%glass slide%' 
+			 )
+		  AND (
+			[Object] NOT LIKE '%clean%' 
+			AND [Object] NOT LIKE '%cleen%' 
+			AND [Object] NOT LIKE '%cover%' 
+			AND [Object] NOT LIKE '%cap%' 
+			AND [Object] NOT LIKE '%nose pliers%' 
+			AND [Object] NOT LIKE '%pine%' 
+			AND [Object] NOT LIKE '%unused%' 
+			AND [Object] NOT LIKE '%crochet%' 
+			AND [Object] NOT LIKE '%sewing%' 
+			AND [Object] NOT LIKE '%garment%' 
+			AND [Object] NOT LIKE '%cylinder machine%' 
+			AND [Object] NOT LIKE '%uncontam%' 
+			AND [Object] NOT LIKE '%sterile%' 
+			AND [Object] NOT LIKE '%pins and%' 
+		  )
+	  OR (
+		  [What happened?] LIKE '%Needle%' 
+		  OR [What happened?] LIKE '%Lancet%' 
+  		  OR [What happened?] LIKE '%Syringe%' 
+		  OR [What happened?] LIKE '%Scalpel%' 
+		  OR [What happened?] LIKE '%Razor%' 
+	  )
+			AND (
+				[What happened?] NOT LIKE '%cover%' 
+				AND [What happened?] NOT LIKE '%cap%' 
+				AND [What happened?] NOT LIKE '%nose pliers%' 
+				AND [What happened?] NOT LIKE '%pine%' 
+				AND [What happened?] NOT LIKE '%unused%' 
+				AND [What happened?] NOT LIKE '%crochet%' 
+				AND [What happened?] NOT LIKE '%sewing%' 
+				AND [What happened?] NOT LIKE '%garment%' 
+				AND [What happened?] NOT LIKE '%cylinder machine%' 
+				AND [What happened?] NOT LIKE '%uncontam%' 
+				AND [What happened?] NOT LIKE '%sterile%' 
+				AND [What happened?] NOT LIKE '%pins and%' 
+			)
+	);
+
+UPDATE OSHA.dbo.OCE
+SET [Check wound case] = 'Check'
+WHERE --IO claim mentions wound case keyword
+[AutoIO] = 'Yes'
+AND [Claim Type] = 'IO'
+AND ([What happened?] LIKE '%Stitch%'  
+      OR [What happened?] LIKE '%stich%' 
+      OR [What happened?] LIKE '%stitich%' 
+      OR [What happened?] LIKE '%suture%' 
+      OR [What happened?] LIKE '%dermabond%' 
+      OR [What happened?] LIKE '%skin glue%' 
+      OR [What happened?] LIKE '%medical glue%' 
+	  OR [What happened?] LIKE '%surgical staple%'
+	  OR [What happened?] LIKE '%Tuberculosis%'
+);
+
+UPDATE OSHA.dbo.OCE
+SET [Check MD Note] = 'Check'
+WHERE --IO claim that has a medical note and event description mentions medical treatment reported
+[AutoIO] = 'Yes'
+AND [Claim Type] = 'IO'
+AND ([medical note] IS NOT NULL
+	OR [what happened?] LIKE '%Medical treatment reported%'
+)
+		AND	[Medical Note] IS NOT NULL
+		AND [Medical Note] NOT LIKE 'na'
+		AND [Medical Note] NOT LIKE 'pending%'
+		AND [Medical Note] NOT LIKE 'N/A%'
+		AND [Medical Note] NOT LIKE 'none%'
+		AND [Medical Note] NOT LIKE 'no md%'
+		AND [Medical Note] NOT LIKE 'no med%'
+		AND [Medical Note] NOT LIKE 'IO%'
+		AND [Medical Note] NOT LIKE 'unk%'
+		AND [Medical Note] NOT LIKE 'no known%'
+		AND [Medical Note] NOT LIKE 'not sure%'
+		AND [Medical Note] NOT LIKE '%unknown%'
+		AND [Medical Note] NOT LIKE '%selfcare%'
+		AND [Medical Note] NOT LIKE '%self_care%'
+		AND [Medical Note] NOT LIKE '%no_treatment%'
+		AND [Medical Note] NOT LIKE '%no_record%'
+		AND [Medical Note] NOT LIKE '%no_tx%'
+		AND [Medical Note] NOT LIKE '%not sought%'
+		AND [Medical Note] NOT LIKE '%no medical%'
+		AND [Medical Note] NOT LIKE '%did not seek%'
+		AND [Medical Note] NOT LIKE '%no provider%'
+		AND [Medical Note] NOT LIKE '%incident only%'
+		AND [Medical Note] NOT LIKE '%medical status unk%'
+		AND [Medical Note] NOT LIKE '%treatment unk%'
+		AND [Medical Note] NOT LIKE '%tx unk%'
+		AND [Medical Note] NOT LIKE '%no med trea%'
+		AND [Medical Note] NOT LIKE '%no treatment%'
+		AND [Medical Note] NOT LIKE '%has not sought%'
+		AND [Medical Note] NOT LIKE '%has not been seen%'
+		AND [Medical Note] NOT LIKE '%declination%'
+		AND [medical note] NOT LIKE '%No treatment%'
+		AND [medical note] NOT LIKE '%No tx%'
+		AND [medical note] NOT LIKE '%No med%'
+		AND [medical note] NOT LIKE '%First_aid only%'
+		AND [medical note] NOT LIKE '%Declined med%'
+		AND [medical note] NOT LIKE '%claim will remain an IO%'
+		AND [medical note] NOT LIKE '%No physical injury%'
+		AND [medical note] NOT LIKE '%No info%'
+		AND [medical note] NOT LIKE '%No claim%'
+		AND [medical note] NOT LIKE '%voice m%'
+		AND [medical note] NOT LIKE '%vm%'
+		AND [medical note] NOT LIKE '%medcor%'
+		AND [medical note] NOT LIKE '%no_show%'
+		AND [medical note] NOT LIKE '%no__show%'
+		AND [medical note] NOT LIKE '%mailed%'
+		AND NOT ([medical note] LIKE '%received%'
+			AND LEN([medical note])<1000)
+		AND NOT ([medical note] LIKE '%request%'
+			AND LEN([medical note])<1000)
+;
