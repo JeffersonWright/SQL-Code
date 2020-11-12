@@ -1,0 +1,17 @@
+ALTER PROCEDURE [dbo].[RemoveCaptive]
+SELECT 'Captive with Blank Location Code'        AS 'Captive with Blank Location Code' ,
+	   [client number]                           AS 'Client Number',
+       [client name]                             AS 'Client Name',
+	   [file number]                             AS 'File Number',
+	   [Analyst]                                 AS 'Current Analyst', 
+	   [occurrence date]                         AS 'Occurrence Date',
+       [employee last name]                      AS 'Employee Last Name',
+       [employee first name]                     AS 'Employee First Name',
+	   [claim open date]						 AS 'Claim Open Date',
+	   [location code]					     	 AS 'Location Code'
+INTO OSHA.dbo._QC_RemoveCaptive
+FROM OSHA.dbo.OCE 
+WHERE ([Client Number] IN ('2039','2453','4039','4192','5201','6728','6768','6834') AND ([Location Code] IS NULL))
+
+DELETE FROM OSHA.dbo.OCE
+WHERE ([Client Number] IN ('2039','2453','4039','4192','5201','6728','6768','6834') AND ([Location Code] IS NULL))
