@@ -1,0 +1,9 @@
+ALTER PROCEDURE [dbo].[PreviousIOs] 
+AS
+UPDATE OSHA.dbo.OCE
+SET [Previous IOs] = 'Check'
+WHERE --recordable claims converted from IO that still have an IO note
+[Claim Type] IN ('IN','MO')
+AND
+[Last Note Text] LIKE 'Recommendation: NOT RECORDABLE - claim remains incident only%'
+;
