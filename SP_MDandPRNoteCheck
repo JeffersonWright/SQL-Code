@@ -112,3 +112,15 @@ AND	([medical note] LIKE '%chiro%'
 		AND [medical note] NOT LIKE '%Released from care%'
 		AND [medical note] NOT LIKE '%Restrictions__no%'
 		AND [medical note] NOT LIKE '%Restrictions: full duty%'
+		AND [medical note] NOT LIKE '%w/o%'
+		AND [medical note] NOT LIKE '%without%')
+	OR [medical note] LIKE '%light duty%'
+	OR [medical note] LIKE '%Antibiotics%'
+	OR [medical note] LIKE '%therapy%'
+	OR ([medical note] LIKE '%RX%'
+		AND [medical note] NOT LIKE '%no RX%'
+		AND [medical note] NOT LIKE '%RX_no%')
+	OR [medical note] LIKE '%prescription%'
+);
+ 
+
