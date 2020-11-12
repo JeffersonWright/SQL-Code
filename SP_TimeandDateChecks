@@ -1,0 +1,157 @@
+ALTER PROCEDURE [dbo].[TimeAndDateChecks] 
+AS
+
+UPDATE OSHA.dbo.OCE
+SET [Work Time Begin Check] = 'Check'
+WHERE --work time last two digits are over 59, or total time is above 2359, except if a keyword is present that would not be associated with a specific time
+[OSHA Recordable Flag] = 'Y'
+AND [Claim Type] <> 'IO'
+AND [Cause Description] NOT LIKE '%repetitive%'
+AND [Cause Description] NOT LIKE '%cumulative%'
+AND [JURIS Cause Description] NOT LIKE '%repetitive%'
+AND [JURIS Cause Description] NOT LIKE '%cumulative%'
+AND [Client Number] NOT IN ('2032') --Kaiser not included in this check
+AND [Client Number] NOT IN ('49','2032','2248','2603','2965','4256','4598','6054','6146','6223','6271','6299','6897','6925','6957','6998','8785','8787','9025','9060','9122','9258','9282') --Clients have not generated 301 or BLS in 5 years excluded from this check
+AND [Event Time] > 99
+AND ( --Check for invalid military time
+	[Work Time Begin] > 2400
+	OR (
+		[Work Time Begin] = 0 AND [Event Time] > 700
+		AND [Occupation] NOT LIKE '%Flight%'
+		AND [Occupation] NOT LIKE '%Ramp%'
+		AND [Occupation] NOT LIKE '%Fire%'
+		AND [Occupation] NOT LIKE '%Police%'
+		AND [Occupation] NOT LIKE 'RN%'
+		AND [Occupation] NOT LIKE '%Bus%'
+		AND [Occupation] NOT LIKE '%Driver%'
+		AND [Occupation] NOT LIKE '%Registered N%'
+	)
+	OR [Work Time Begin] BETWEEN 60 AND 99
+	OR [Work Time Begin] LIKE '_6_'
+	OR [Work Time Begin] LIKE '_7_'
+	OR [Work Time Begin] LIKE '_8_'
+	OR [Work Time Begin] LIKE '_9_'
+	OR [Work Time Begin] LIKE '__6_'
+	OR [Work Time Begin] LIKE '__7_'
+	OR [Work Time Begin] LIKE '__8_'
+	OR [Work Time Begin] LIKE '__9_'
+);
+
+UPDATE OSHA.dbo.OCE
+SET [Event Time Check] = 'Check'
+WHERE --event time last two digits are over 59, or total time is above 2359, except if a keyword is present that would not be associated with a specific time
+[OSHA Recordable Flag] = 'Y'
+AND [Claim Type] <> 'IO'
+AND [Cause Description] NOT LIKE '%repetitive%' --no time associated with this injury
+AND [Cause Description] NOT LIKE '%cumulative%'
+AND [JURIS Cause Description] NOT LIKE '%repetitive%'
+AND [JURIS Cause Description] NOT LIKE '%cumulative%'
+AND [Client Number] NOT IN ('2032') --Kaiser not included in this check
+AND [Client Number] NOT IN ('49','2032','2248','2603','2965','4256','4598','6054','6146','6223','6271','6299','6897','6925','6957','6998','8785','8787','9025','9060','9122','9258','9282') --Clients have not generated 301 or BLS in 5 years excluded from this check
+AND ( --Check for invalid military time
+	[Event Time] > 2400
+	OR (
+		[Event Time] = 0
+		AND [Work Time Begin] < 2100
+		AND [Occupation] NOT LIKE '%Flight%'
+		AND [Occupation] NOT LIKE '%Ramp%'
+		AND [Occupation] NOT LIKE '%Fire%'
+		AND [Occupation] NOT LIKE '%Police%'
+		AND [Occupation] NOT LIKE 'RN%'
+		AND [Occupation] NOT LIKE '%Bus%'
+		AND [Occupation] NOT LIKE '%Driver%'
+		AND [Occupation] NOT LIKE '%Registered N%'
+	)
+	OR [Event Time] BETWEEN 60 AND 99
+	OR [Event Time] LIKE '_6_'
+	OR [Event Time] LIKE '_7_'
+	OR [Event Time] LIKE '_8_'
+	OR [Event Time] LIKE '_9_'
+	OR [Event Time] LIKE '__6_'
+	OR [Event Time] LIKE '__7_'
+	OR [Event Time] LIKE '__8_'
+	OR [Event Time] LIKE '__9_'
+);
+
+UPDATE OSHA.dbo.OCE
+SET [Event Time vs Work Begin] = 'Check'
+WHERE --event time is either more than an hour before or twelve hours after the work time begin
+[OSHA Recordable Flag] = 'Y'
+AND [Claim Type] <> 'IO'
+AND [Cause Description] NOT LIKE '%repetitive%' --no time associated with this injury
+AND [Cause Description] NOT LIKE '%cumulative%'
+AND [JURIS Cause Description] NOT LIKE '%repetitive%'
+AND [JURIS Cause Description] NOT LIKE '%cumulative%'
+AND [Occupation] NOT LIKE '%Flight%'
+AND [Occupation] NOT LIKE '%Ramp%'
+AND [Occupation] NOT LIKE '%Fire%'
+AND [Occupation] NOT LIKE '%Police%'
+AND [Occupation] NOT LIKE 'RN%'
+AND [Occupation] NOT LIKE '%Bus%'
+AND [Occupation] NOT LIKE '%Driver%'
+AND [Occupation] NOT LIKE '%Registered N%'
+AND [Client Number] NOT IN ('2032') --Kaiser not included in this check
+AND [Client Number] NOT IN ('49','2032','2248','2603','2965','4256','4598','6054','6146','6223','6271','6299','6897','6925','6957','6998','8785','8787','9025','9060','9122','9258','9282') --Clients have not generated 301 or BLS in 5 years excluded from this check
+AND [Event Time] <> 0
+AND [Work Time Begin] <> 0
+AND
+	(
+		(([Work Time Begin] < 1200) AND (([Event Time] - [Work Time Begin]) BETWEEN 1231 AND 2259)) --Work Time Begin before noon, and the injury happened more than one hour before or more than 12 hours after work time begin.
+OR		(([Work Time Begin] > 1200) AND (([Event Time] - [Work Time Begin]) BETWEEN -1129 AND -101))--Work Time Begin after noon, and the injury happened more than one hour before or more than 12 hours after work time begin.
+	);
+
+UPDATE OSHA.dbo.OCE
+SET [Hire Date Check] = 'Invalid'
+WHERE --recordable claims with hire date that is blank or would be 100 years in the past
+[OSHA Recordable Flag] = 'Y'
+AND [Client Number] NOT IN ('2032') --Kaiser not included in this check
+AND [Client Number] NOT IN ('49','2032','2248','2603','2965','4256','4598','6054','6146','6223','6271','6299','6897','6925','6957','6998','8785','8787','9025','9060','9122','9258','9282') --Clients have not generated 301 or BLS in 5 years excluded from this check
+AND
+([Hire Date] IS NULL 
+OR (DATEDIFF(day,[Hire Date],[Occurrence Date])) > (100*365)
+);
+
+UPDATE OSHA.dbo.OCE
+SET [Hire Date Check] = 'Before Injury'
+WHERE --recordable claims with hire date that is on or after occurrence date
+[OSHA Recordable Flag] = 'Y'
+AND [Client Number] NOT IN ('2032') --Kaiser not included in this check
+AND [Client Number] NOT IN ('49','2032','2248','2603','2965','4256','4598','6054','6146','6223','6271','6299','6897','6925','6957','6998','8785','8787','9025','9060','9122','9258','9282') --Clients have not generated 301 or BLS in 5 years excluded from this check
+AND [Hire Date] > [Occurrence Date]
+;
+
+UPDATE OSHA.dbo.OCE
+SET [ARTW Check] = 'Check'
+WHERE --ARTW is in the past
+[current anticipated rtw date] < (SELECT MAX([Create Timestamp]) From OSHA.dbo.OCE)
+;
+
+UPDATE OSHA.dbo.OCE
+SET [DoB Check] = 'Invalid'
+WHERE --recordable claim with DoB that would make the employee under 13 or over 100 years old
+[OSHA Recordable Flag] = 'Y'
+AND [Client Number] NOT IN ('2032') --Kaiser not included in this check
+AND [Client Number] NOT IN ('49','2032','2248','2603','2965','4256','4598','6054','6146','6223','6271','6299','6897','6925','6957','6998','8785','8787','9025','9060','9122','9258','9282') --Clients have not generated 301 or BLS in 5 years excluded from this check
+AND
+([EE Date of Birth] IS NULL 
+OR (DATEDIFF(day,[EE Date of Birth],[Occurrence Date])) < (13*365)
+OR (DATEDIFF(day,[EE Date of Birth],[Occurrence Date])) > (100*365)
+);
+
+UPDATE OSHA.dbo.OCE
+SET [DoB Check] = 'Before Hire'
+WHERE --recordable claim with DoB before hire date
+[OSHA Recordable Flag] = 'Y'
+AND [Client Number] NOT IN ('2032') --Kaiser not included in this check
+AND [Client Number] NOT IN ('49','2032','2248','2603','2965','4256','4598','6054','6146','6223','6271','6299','6897','6925','6957','6998','8785','8787','9025','9060','9122','9258','9282') --Clients have not generated 301 or BLS in 5 years excluded from this check
+AND [EE Date of Birth] >= [Hire Date]
+;
+
+UPDATE OSHA.dbo.OCE
+SET [Date of Death Check] = 'Check'
+WHERE --death claims where to OSHA note doesn't mention death
+[Date of Death] IS NOT NULL
+AND [Last Note Text] NOT LIKE '%death%'
+AND [Last Note Text] NOT LIKE '%dead%'
+AND [Last Note Text] NOT LIKE '%died%'
+;
