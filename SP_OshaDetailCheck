@@ -1,0 +1,51 @@
+ALTER PROCEDURE [dbo].[OshaDetailCheck]
+AS
+UPDATE OSHA.dbo.OCE
+SET [OSHA Detail Check] = 'Object'
+WHERE --recordable claims that have an invalid entry for Object
+[OSHA Recordable Flag] = 'Y' 
+AND [Last Note Text] IS NOT NULL 
+AND [Client Number] NOT IN ('1954','1955','1969','1978','1987','1995','2036','2044','2250','2285','2326','2473','2635','2647','2905','6143','6163','6384','6396','6858','6907','6921','7020','7021','7029','7062','7066','7082','8523') --Excluding clients handled by examiners 
+AND ( --Object check
+    [Object] IS NULL 
+    OR [Object] LIKE 'n/a%' 
+    OR [Object] LIKE '?%' 
+    OR [Object] LIKE 'unk%' 
+    OR [Object] LIKE 'none%' 
+    OR [Object] LIKE '%no object%' 
+    OR [Object] LIKE '%injured by%' 
+    OR [Object] LIKE 'the act of%' 
+    OR [Object] LIKE '%pushing' 
+    OR [Object] LIKE '%pulling' 
+    OR [Object] LIKE '%lifting' 
+);
+
+UPDATE OSHA.dbo.OCE
+SET [OSHA Detail Check] = 'Where did the case occur?'
+WHERE --recordable claims that have an invalid entry for Accident Location
+[OSHA Recordable Flag] = 'Y' 
+AND [Last Note Text] IS NOT NULL 
+AND [Client Number] NOT IN ('1954','1955','1969','1978','1987','1995','2036','2044','2250','2285','2326','2473','2635','2647','2905','6143','6163','6384','6396','6858','6907','6921','7020','7021','7029','7062','7066','7082','8523') --Excluding clients handled by examiners 
+AND ( --Accident Location check
+    [Accident Location] IS NULL 
+    OR [Accident Location] LIKE '?%' 
+    OR [Accident Location] LIKE 'N/A%' 
+    OR [Accident Location] LIKE 'None%' 
+    OR [Accident Location] LIKE 'unk%' 
+    OR [Accident Location] LIKE '%:_0' 
+    OR [Accident Location] LIKE '%:_5' 
+);
+
+UPDATE OSHA.dbo.OCE
+SET [OSHA Detail Check] = 'What was EE doing'
+WHERE --recordable claims that have an invalid entry for What was emp doing before the incident
+[OSHA Recordable Flag] = 'Y' 
+AND [Last Note Text] IS NOT NULL 
+AND [Client Number] NOT IN ('1954','1955','1969','1978','1987','1995','2036','2044','2250','2285','2326','2473','2635','2647','2905','6143','6163','6384','6396','6858','6907','6921','7020','7021','7029','7062','7066','7082','8523') --Excluding clients handled by examiners 
+AND ( --WWEDBtI check
+    [What was emp doing before the incident?] IS NULL 
+    OR [What was emp doing before the incident?] LIKE '?%' 
+    OR [What was emp doing before the incident?] LIKE 'n/a%' 
+    OR [What was emp doing before the incident?] LIKE 'unk%' 
+    OR [What was emp doing before the incident?] LIKE 'none%'
+);
