@@ -1,0 +1,13 @@
+ALTER PROCEDURE [dbo].[BlankOccupation] 
+AS
+UPDATE OSHA.dbo.OCE
+SET [Blank Occupation] = 'Check'
+WHERE --recordable claim with blank occupation
+[OSHA Recordable Flag] = 'Y'
+AND (
+	[Occupation] IS NULL
+	OR [Occupation] ='na'
+	OR [Occupation] LIKE '%?%'
+	OR [Occupation] LIKE 'Unk%'
+	OR [Occupation] LIKE 'N/A%'
+);
