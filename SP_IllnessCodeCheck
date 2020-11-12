@@ -1,0 +1,209 @@
+ALTER PROCEDURE [dbo].[IllnessCodeCheck]
+AS
+UPDATE OSHA.dbo.OCE
+SET [Illness Code Check] = 'Check'
+WHERE --recordable claims that have an invalid matching of Accident/Illness Code and Nature/Result field
+[OSHA Recordable Flag] = 'Y' 
+AND ( --Any of the 6 codes 
+  ( --Code 1: Injury, with keywords belonging to any of the other codes.
+    [Accident/Illness Type] = '1' 
+    AND ( 
+      [JURIS Body Part/Target Description] LIKE '%respiratory%' --should be 3 
+      OR [JURIS Cause Description] LIKE '%respiratory%' --should be 3
+      OR [JURIS Cause Description] LIKE '%meningitis%' --should be 6 
+      OR [JURIS Cause Description] LIKE '%influenza%' --should be 6 
+      OR [JURIS Cause Description] LIKE '%stress%' --should be 6 
+      OR [JURIS Nature/Result Description] LIKE '%dermatitis%' --should be 2: Skin Disorder 
+      OR [JURIS Nature/Result Description] LIKE '%inhalation%' --should be 3: Respiratory Condition 
+      OR [JURIS Nature/Result Description] LIKE '%COVID%' --should be 3
+      OR [JURIS Nature/Result Description] LIKE '%silicosis%' --should be 3 
+      OR [JURIS Nature/Result Description] LIKE '%asbestos%' --should be 3 
+      OR [JURIS Nature/Result Description] LIKE '%asphyxiation%' --should be 3 
+      OR [JURIS Nature/Result Description] LIKE '%black lung%' --should be 3 
+      OR [JURIS Nature/Result Description] LIKE '%byssinosis%' --should be 3 
+      OR [JURIS Nature/Result Description] LIKE '%tuberculosis%' --should be 3 
+      OR [JURIS Nature/Result Description] LIKE '%dust disease%' --should be 3
+      OR [JURIS Nature/Result Description] LIKE '%poisoning%' --should be 4: Poisoning 
+      OR [JURIS Nature/Result Description] LIKE '%hearing%' --should be 5: Hearing Loss
+      OR [JURIS Nature/Result Description] LIKE '%Myocardial%' --should be 6 
+      OR [JURIS Nature/Result Description] LIKE '%heatstroke%' --should be 6 
+      OR [JURIS Nature/Result Description] LIKE '%heat stroke%' --should be 6 
+      OR [JURIS Nature/Result Description] LIKE '%heat prostration%' --should be 6 
+      OR [JURIS Nature/Result Description] LIKE '%HIV%' --should be 6 
+      OR [JURIS Nature/Result Description] LIKE '%AIDS%' --should be 6 
+      OR [JURIS Nature/Result Description] LIKE '%freezing%' --should be 6 
+      OR [JURIS Nature/Result Description] LIKE '%anthrax%' --should be 6 
+      OR [JURIS Nature/Result Description] LIKE '%hepatitis%' --should be 6 
+      OR [JURIS Nature/Result Description] LIKE '%heart%' --should be 6 
+      OR [JURIS Nature/Result Description] LIKE '%angina%' --should be 6 
+      OR [JURIS Nature/Result Description] LIKE '%stroke%' --should be 6 
+      OR [JURIS Nature/Result Description] LIKE '%vascular%' --should be 6 
+      OR [JURIS Nature/Result Description] LIKE '%influenza%' --should be 6 
+      OR [JURIS Nature/Result Description] LIKE '%radiation%' --should be 6 
+      OR [JURIS Nature/Result Description] LIKE '%Cancer%' --should be 6 
+      OR [JURIS Nature/Result Description] LIKE '%Enucleation%' --should be 6 
+      OR [JURIS Nature/Result Description] LIKE '%Varicosities%' --should be 6 
+      OR [JURIS Nature/Result Description] LIKE '%Vasuclar%' --should be 6 
+      OR [JURIS Nature/Result Description] LIKE '%Vision%' --should be 6 
+      OR (
+			[JURIS Nature/Result Description] LIKE '%contagious disease%' --should be 6 
+			AND [Client Number] <> '1855'
+	  )
+	  OR ( 
+			[JURIS Nature/Result Description] LIKE '%no physical injury%'
+			AND [JURIS Cause Description] LIKE '%contact with infectious disease%'
+      ) 
+
+--    OR [JURIS Body Part/Target Description] LIKE '%Circulatory%' --should be 6: All Other Illnesses 
+--	  OR [JURIS Body Part/Target Description] LIKE '%Digestive%' --should be 6 
+--	  OR [JURIS Body Part/Target Description] LIKE '%Heart%' --should be 6 
+--	  OR [JURIS Body Part/Target Description] LIKE '%Nervous%' --should be 6 
+--       OR [JURIS Nature/Result Description] LIKE '%mental%' --should be 6, not environmental 
+--	  OR [JURIS Nature/Result Description] LIKE '%Arthritis%' --should be 6 
+--       OR [JURIS Nature/Result Description] LIKE '%Conjunctivitis%' --should be 6 
+--       OR [JURIS Nature/Result Description] LIKE '%Infection%' --should be 6 
+
+    ) 
+  ) 
+  OR ( --Code 2: Skin Disorder, checking for any keywords not like ones that should be included, then body parts that should not be code 2
+	[Accident/Illness Type] = '2'
+    AND ( 
+        [Juris Cause Description] NOT LIKE '%Allergic%'
+        AND [JURIS Nature/Result Description] NOT LIKE '%rash/allergic%'
+        AND [JURIS Nature/Result Description] NOT LIKE '%inflammation%'
+        AND [JURIS Nature/Result Description] NOT LIKE '%skin disorder%'
+        AND [JURIS Nature/Result Description] NOT LIKE '%blister%'
+        AND [JURIS Nature/Result Description] NOT LIKE '%ulcer%'
+        AND [JURIS Nature/Result Description] NOT LIKE '%Allergic Reaction%'
+        AND [JURIS Nature/Result Description] NOT LIKE '%chem%'
+        AND [JURIS Nature/Result Description] NOT LIKE '%Dermatitis%'
+        AND [JURIS Body Part/Target Description] NOT LIKE '%no physical injury%'
+    ) 
+  ) 
+  OR ( --Code 3: Respiratory Condition, checking for any keywords not like ones that should be included
+    [Accident/Illness Type] = '3' 
+    AND ( 
+      [JURIS Nature/Result Description] NOT LIKE '%inhalation%'
+      AND [JURIS Nature/Result Description] NOT LIKE '%COVID%'
+      AND [JURIS Nature/Result Description] NOT LIKE '%silicosis%'
+      AND [JURIS Nature/Result Description] NOT LIKE '%asbestosis%'
+      AND [JURIS Nature/Result Description] NOT LIKE '%asphyxiation%'
+      AND [JURIS Nature/Result Description] NOT LIKE '%lung%'
+      AND [JURIS Nature/Result Description] NOT LIKE '%byssinosis%'
+      AND [JURIS Nature/Result Description] NOT LIKE '%tuberculosis%'
+      AND [JURIS Nature/Result Description] NOT LIKE '%dust disease%'
+      AND [JURIS Nature/Result Description] NOT LIKE '%respiratory%'
+      AND [JURIS Nature/Result Description] NOT LIKE '%strang%'
+      AND [JURIS Nature/Result Description] NOT LIKE '%dust%'
+      AND [JURIS Body Part/Target Description] NOT LIKE '%lung%'
+      AND [JURIS Body Part/Target Description] NOT LIKE '%respiratory%'
+      AND [JURIS Cause Description] NOT LIKE '%dust%' 
+      AND [JURIS Cause Description] NOT LIKE '%respiratory%' 
+      AND [JURIS Cause Description] NOT LIKE '%TB%' 
+      AND [JURIS Cause Description] NOT LIKE '%inhalation%' 
+      AND [Object] NOT LIKE '%dust%'
+      AND [Object] NOT LIKE '%fume%'
+      AND [Object] NOT LIKE '%cleaner%'
+    ) 
+  ) 
+  OR ( --Code 4: Poisoning 
+    [Accident/Illness Type] = '4'
+    AND ( 
+      [JURIS Nature/Result Description] NOT LIKE '%poison%'
+      OR [JURIS Body Part/Target Description] LIKE '%no physical injury%'
+    ) 
+  ) 
+  OR ( --Code 5: Hearing Loss 
+    [Accident/Illness Type] = '5' 
+    AND ( 
+      [JURIS Body Part/Target Description] NOT LIKE '%ear%'
+      AND [JURIS Nature/Result Description] NOT LIKE '%hearing%'
+    ) 
+  ) 
+  OR ( --Code 6: All Other Illnesses, includes things like heat/cold, stress, and disease
+    [Accident/Illness Type] = '6' 
+    AND ( 
+      [JURIS Body Part/Target Description] LIKE '%respiratory%'
+      OR [JURIS Nature/Result Description] LIKE '%poison%' 
+      OR [JURIS Nature/Result Description] LIKE '%COVID%' --should be 3
+      OR [JURIS Cause Description] LIKE '%poison%'
+      OR ( 
+        [Client Number] NOT LIKE '4795' 
+        AND ( 
+          [JURIS Nature/Result Description] LIKE '%hearing%'
+          OR ( 
+            [JURIS Cause Description] LIKE '%air pressure%'
+            AND [JURIS Body Part/Target Description] LIKE '%ear%'
+          ) 
+        ) 
+      )
+	  OR ( --syncope should be 1 if related to a specific injury
+		[JURIS Nature/Result Description] LIKE '%syncope%' 
+		AND ([Juris Cause Description] LIKE '%struck%'
+		OR [Juris Cause Description] LIKE '%fall%'
+		OR [Juris Cause Description] LIKE '%slip%'
+		OR [Juris Cause Description] LIKE '%trip%'
+		OR [Juris Cause Description] LIKE '%contact%'
+		OR [Juris Cause Description] LIKE '%vehicle%'
+		OR [Juris Cause Description] LIKE '%collision%'
+		OR [Juris Cause Description] LIKE '%cut, punctured%'
+		OR [Juris Cause Description] LIKE '%altercation%'
+		OR [Juris Cause Description] LIKE '%crime%'
+		)
+	  ) 
+    ) 
+  ) 
+  
+  OR (--AA specific 1/6 mismatch
+  [Client Number] = 4795
+	AND (--Mismatched Illness Type with description
+		(-- Type 1 that should be 6 because of ergonomic injury not a specific incident
+			[Accident/Illness Type] = 1
+			AND ([Cause Description] LIKE '%Repetitive%'
+				OR [Cause Description] LIKE '%Cumulative%'
+				OR [JURIS Cause Description] LIKE '%Repetitive%'
+				OR [JURIS Cause Description] LIKE '%Cumulative%'
+				OR [What happened?] LIKE '%over time%'
+				OR [What happened?] LIKE '%chronic%'
+				OR [What happened?] LIKE '% has been %'
+				OR [What happened?] LIKE '%ongoing%'
+				OR [What happened?] LIKE '%days later%'
+				OR [What happened?] LIKE '%days ago%'
+				OR [Nature Description] LIKE '%arthritis%'
+				OR [Nature Description] LIKE '%Carpal%'
+				OR [Nature Description] LIKE '%Cumulative%'
+				OR [JURIS Nature/Result Description] LIKE '%arthritis%'
+				OR [JURIS Nature/Result Description] LIKE '%Carpal%'
+				OR [JURIS Nature/Result Description] LIKE '%Cumulative%'
+				OR ([Cause Description] LIKE '%Overexer%'
+					AND ([JURIS Body Part/Target Description] LIKE '%skeletal%'
+						OR [JURIS Body Part/Target Description] LIKE '%skeletal%'
+						OR [JURIS Nature/Result Description] LIKE '%osis%'
+						OR [JURIS Nature/Result Description] LIKE '%itis%'
+						OR [JURIS Nature/Result Description] LIKE '%pathy%'
+						OR [JURIS Nature/Result Description] LIKE '%hernia%'
+						OR [JURIS Nature/Result Description] LIKE '%syndrome%'
+						OR [Nature Description] LIKE '%osis%'
+						OR [Nature Description] LIKE '%itis%'
+						OR [Nature Description] LIKE '%pathy%'
+						OR [Nature Description] LIKE '%hernia%'
+						OR [Nature Description] LIKE '%syndrome%'
+					)
+				)
+			)
+		)
+		OR (-- Type 6 that should be 1 because of a specific injury not an ergonomic hazard
+			[Accident/Illness Type] = 6
+			AND ([What happened?] LIKE '%sharp pain%'
+				OR [Nature Description] LIKE '%sharp pain%'
+				OR [What happened?] LIKE '%a pop%'
+				OR [Nature Description] LIKE '%a pop%'
+				OR [What happened?] LIKE '%twisted%'
+				OR [What happened?] LIKE '%pushed%'
+				OR [What happened?] LIKE '%lifted%'
+				OR [Object] LIKE '%a bag%'
+			)
+		)
+	)
+  )
+);
