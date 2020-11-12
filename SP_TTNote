@@ -1,0 +1,51 @@
+ALTER PROCEDURE [dbo].[TTNote]
+AS
+UPDATE OSHA.dbo.OCE
+SET [TT Note] = 'LT not RD'
+WHERE 
+([Last Note Text] LIKE 'Recommendation: RECORDABLE - modified/restricted duty%'
+AND [Override Flag] = 'N'
+	AND [Calendar Lost Time Days] > 0
+	AND ( --Restricted duty is blank or 0
+		( 
+		[Calendar Restricted Days] IS NULL 
+		AND [Calendar Restricted-NTL Days] IS NULL 
+		) 
+		OR ( 
+		[Calendar Restricted Days] = 0 
+		AND [Calendar Restricted-NTL Days] = 0 
+		) 
+	)
+);
+
+UPDATE OSHA.dbo.OCE
+SET [TT Note] = 'Per TT'
+WHERE 
+([Last Note Text] LIKE 'Recommendation: RECORDABLE - lost time%'
+	AND [Override Flag] = 'N'
+AND ([Last Note Text] LIKE '%per TT%'
+		OR [Last Note Text] LIKE '%per time_track%'
+	)	
+	AND ( 
+		[Calendar Lost Time Days] IS NULL 
+		OR 
+		[Calendar Lost Time Days] = 0 
+	)
+)
+OR([Last Note Text] LIKE 'Recommendation: RECORDABLE - modified/restricted duty%'
+	AND ( 
+			([Last Note Text] LIKE '%per TT%'
+				OR [Last Note Text] LIKE '%per time_track%'
+			)
+	)
+	AND ( --Restricted duty is blank or 0
+		( 
+		[Calendar Restricted Days] IS NULL 
+		AND [Calendar Restricted-NTL Days] IS NULL 
+		) 
+		OR ( 
+		[Calendar Restricted Days] = 0 
+		AND [Calendar Restricted-NTL Days] = 0 
+		) 
+	)
+);
