@@ -1,0 +1,24 @@
+SELECT
+"_QC_Overdue"."Overdue",
+"_QC_Overdue"."Client Number",
+"_QC_Overdue"."Client Name",
+"_QC_Overdue"."Current Analyst",
+"_QC_Overdue"."Team Lead",
+"_QC_Overdue"."File Number",
+"_QC_Overdue"."Last Note Text",
+"_QC_Overdue"."Create Timestamp",
+"_QC_Overdue"."Occurrence Date",
+"_QC_Overdue"."Osha Recordable Flag",
+"_QC_Overdue"."Location Code",
+"_QC_Overdue"."Location State",
+"_QC_Overdue"."Note Created Date",
+"_QC_Overdue"."Note Created By",
+"_QC_Overdue"."Claim Type",
+"_QC_Overdue"."Claim Open Date"
+FROM OSHA.dbo."_QC_Overdue" "_QC_Overdue"
+ORDER BY
+"_QC_Overdue"."Team Lead",
+"_QC_Overdue"."Current Analyst",
+"_QC_Overdue"."Client Number",
+"_QC_Overdue"."Overdue",
+"_QC_Overdue"."Occurrence Date"
