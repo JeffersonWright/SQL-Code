@@ -1,0 +1,16 @@
+ALTER PROCEDURE [dbo].[AnalystNoteCheck] 
+AS
+UPDATE OSHA.dbo.OCE
+SET [Analyst Note Check] = 'Check'
+WHERE --there is a note but not created by one of our analysts
+[Active] = 'Yes'
+AND [Last Note Text] IS NOT NULL
+AND [Client Number] NOT IN ('1954','1955','1969','1978','1987','2036','2044','2250','2285','2326','2473','2635','2905','6143','6163','6384','6396','6858','6907','6921','8523') --Excluding clients handled by examiners 
+AND [Last Note Text] NOT LIKE '%auto recorded as per change in Nature/Result%'
+AND [Last Note Text] NOT LIKE '%Note entered at OSHA analyst%'
+AND [Note Created By] NOT IN ('SYSTEM','Appserv','testjeff')
+AND NOT EXISTS (
+SELECT 1
+FROM OSHA.dbo.analysts
+WHERE OSHA.dbo.analysts.Analyst_Login = OSHA.dbo.OCE.[Note Created By]
+); 
