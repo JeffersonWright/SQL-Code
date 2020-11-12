@@ -1,0 +1,13 @@
+ALTER PROCEDURE [dbo].[ActiveAndAutoIO] 
+AS
+UPDATE OSHA.dbo.OCE
+SET OSHA.dbo.OCE.[Active] = OSHA.dbo.OSHA_Client_List.[Active] --set Active Y/N from the client list table
+FROM OSHA.dbo.OSHA_Client_List
+WHERE --the client number matches the client number on the client list table
+OSHA.dbo.OCE.[Client Number] = OSHA.dbo.OSHA_Client_List.[Client #]
+
+UPDATE OSHA.dbo.OCE
+SET OSHA.dbo.OCE.[AutoIO] = OSHA.dbo.OSHA_Client_List.[Auto IO Client] --set Auto IO Y/N from the client list table
+FROM OSHA.dbo.OSHA_Client_List
+WHERE --the client number matches the client number on the client list table
+OSHA.dbo.OCE.[Client Number] = OSHA.dbo.OSHA_Client_List.[Client #]
