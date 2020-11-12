@@ -1,0 +1,24 @@
+ALTER PROCEDURE [dbo].[WorkRelatedNoteConflict] 
+AS
+UPDATE OSHA.dbo.OCE
+SET [Work Related Note Conflict] = 'Check'
+WHERE --claims where the OSHA note conflicts with work related
+( 
+  ( --Not work related with a note that is a template but not one of the two intended
+    [OSHA Work Related] = 'N' 
+    AND [Last Note Text] LIKE 'Recommendation:%' 
+    AND [Last Note Text] NOT LIKE 'Recommendation: NOT RECORDABLE - not OSHA work%'
+    AND [Last Note Text] NOT LIKE 'Recommendation: NOT RECORDABLE - no indication of a work%'
+  ) 
+  OR 
+  ( --Work related but with a not work related note
+    [OSHA Work Related] = 'Y' 
+    AND ([Last Note Text] LIKE 'Recommendation: NOT RECORDABLE - not OSHA work%'
+		OR [Last Note Text] LIKE 'Recommendation: NOT RECORDABLE - no indication of a work%'
+    ) 
+  ) 
+) 
+AND NOT ( --Exclusion for Safeway with system notes
+  [Client Number] IN ('2632','6400') 
+  AND [Note Created By] = 'SYSTEM' 
+); 
