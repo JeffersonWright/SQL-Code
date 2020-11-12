@@ -1,0 +1,43 @@
+ALTER PROCEDURE [dbo].[BodySideCheck]
+AS
+UPDATE OSHA.dbo.OCE
+SET [Body Side Check] = 'Check'
+WHERE --recordable claims that have an invalid Body Side for the entered Body Part
+[OSHA Recordable Flag] = 'Y' 
+AND [Last Note Text] IS NOT NULL 
+AND (--Body side invalid for given body part 
+  ( 
+    ( [JURIS Body Part/Target Description] LIKE 'ear%'
+      OR [JURIS Body Part/Target Description] LIKE '%eye%' 
+      OR [JURIS Body Part/Target Description] LIKE '%arm%' 
+      OR [JURIS Body Part/Target Description] LIKE '%elbow%' 
+      OR [JURIS Body Part/Target Description] LIKE '%wrist%' 
+      OR [JURIS Body Part/Target Description] LIKE '%hand%' 
+      OR [JURIS Body Part/Target Description] LIKE '%leg%' 
+      OR [JURIS Body Part/Target Description] LIKE '%finger%'
+      OR [JURIS Body Part/Target Description] LIKE '%thumb%' 
+      OR [JURIS Body Part/Target Description] LIKE '%shoulder%'
+      OR [JURIS Body Part/Target Description] LIKE '%hip%' 
+      OR [JURIS Body Part/Target Description] LIKE '%knee%' 
+      OR [JURIS Body Part/Target Description] LIKE '%ankle%' 
+      OR [JURIS Body Part/Target Description] LIKE '%foot%' 
+      OR [JURIS Body Part/Target Description] LIKE '%toe%' 
+    ) 
+    AND ( 
+      [Body Side] IS NULL 
+      OR ( 
+        [Body Side] NOT LIKE '%left%' 
+        AND [Body Side] NOT LIKE '%right%' 
+        AND [Body Side] NOT LIKE '%bilateral%' 
+      ) 
+    ) 
+  ) 
+  OR ( 
+    [Body Side] IS NULL 
+	AND ( 
+      [JURIS Body Part/Target Description] LIKE '%Multiple upper%'
+      OR [JURIS Body Part/Target Description] LIKE '%Multiple lower%'
+      OR [JURIS Body Part/Target Description] LIKE '%Multiple body part%'
+    ) 
+  ) 
+);
